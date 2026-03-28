@@ -9,3 +9,6 @@ Route::get('/', function () {
 
 require __DIR__.'/modules/crm.php';
 require __DIR__.'/modules/inventory.php';
+require __DIR__.'/modules/warehouse.php';
+require __DIR__.'/modules/purchasing.php';
+require __DIR__.'/modules/sales.php';
