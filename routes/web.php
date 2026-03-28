@@ -8,3 +8,4 @@ Route::get('/', function () {
 });
 
 require __DIR__.'/modules/crm.php';
+require __DIR__.'/modules/inventory.php';
