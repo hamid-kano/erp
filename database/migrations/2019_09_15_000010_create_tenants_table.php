@@ -15,8 +15,9 @@ class CreateTenantsTable extends Migration
             $table->string('name');
             $table->enum('plan', ['starter', 'professional', 'enterprise'])->default('starter');
             $table->boolean('is_active')->default(true);
+            $table->unsignedBigInteger('base_currency_id')->nullable(); // العملة الأساسية للشركة
             $table->timestamps();
-            $table->json('data')->nullable(); // stancl يخزن هنا tenancy_db_name وغيرها
+            $table->json('data')->nullable();
         });
     }
 

@@ -26,8 +26,8 @@ class TrialBalanceReport
         // نجلب مجاميع المدين والدائن لكل حساب في الفترة
         $balances = JournalLine::select(
                 'account_id',
-                DB::raw('SUM(debit) as total_debit'),
-                DB::raw('SUM(credit) as total_credit')
+                DB::raw('SUM(debit_base) as total_debit'),
+                DB::raw('SUM(credit_base) as total_credit')
             )
             ->whereHas('entry', fn($q) => $q
                 ->where('status', 'posted')

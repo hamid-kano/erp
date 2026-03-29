@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Core\Tenancy\TenantManager;
 use App\Modules\Inventory\Domain\Events\StockDepleted;
 use App\Modules\Inventory\Application\Listeners\HandleStockDepleted;
 use App\Modules\Purchasing\Domain\Events\GoodsReceived;
@@ -43,6 +44,12 @@ class AppServiceProvider extends ServiceProvider
                     'permissions' => Auth::user()->getAllPermissions()->pluck('name'),
                 ] : null,
             ],
+            'currency' => fn () => app(TenantManager::class)->getBaseCurrency()
+                ? [
+                    'code'   => app(TenantManager::class)->getBaseCurrency()->code,
+                    'symbol' => app(TenantManager::class)->getBaseCurrency()->symbol,
+                    'decimal_places' => app(TenantManager::class)->getBaseCurrency()->decimal_places,
+                ] : ['code' => 'SAR', 'symbol' => 'ر.س', 'decimal_places' => 2],
             'flash' => fn () => [
                 'success' => session('success'),
                 'error'   => session('error'),

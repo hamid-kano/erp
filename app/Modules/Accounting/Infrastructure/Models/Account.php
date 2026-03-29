@@ -11,15 +11,18 @@ class Account extends BaseModel
     use NodeTrait;
 
     protected $fillable = [
-        'tenant_id', 'template_item_id', 'parent_id',
+        'tenant_id', 'template_item_id', 'parent_id', 'currency_id',
         'code', 'name', 'type', 'normal_balance',
         'is_postable', 'is_locked', 'is_active',
+        'opening_balance', 'opening_balance_date',
     ];
 
     protected $casts = [
-        'is_postable' => 'boolean',
-        'is_locked'   => 'boolean',
-        'is_active'   => 'boolean',
+        'is_postable'          => 'boolean',
+        'is_locked'            => 'boolean',
+        'is_active'            => 'boolean',
+        'opening_balance'      => 'decimal:2',
+        'opening_balance_date' => 'date',
     ];
 
     // ── Domain Rules ──────────────────────────────────────
@@ -68,6 +71,19 @@ class Account extends BaseModel
     public function journalLines()
     {
         return $this->hasMany(JournalLine::class);
+    }
+
+    public function currency()
+    {
+        return $this->belongsTo(\App\Modules\Currency\Infrastructure\Models\Currency::class);
+    }
+
+    /**
+     * العملة الفعلية للحساب (عملته أو عملة الشركة)
+     */
+    public function getEffectiveCurrencyAttribute()
+    {
+        return $this->currency ?? app(\App\Core\Tenancy\TenantManager::class)->getBaseCurrency();
     }
 
     // ── Balance ───────────────────────────────────────────

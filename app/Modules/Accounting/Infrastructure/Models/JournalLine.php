@@ -6,9 +6,19 @@ use App\Core\BaseModel;
 
 class JournalLine extends BaseModel
 {
-    protected $fillable = ['entry_id', 'account_id', 'debit', 'credit', 'description'];
+    protected $fillable = [
+        'entry_id', 'account_id',
+        'debit', 'credit',
+        'debit_base', 'credit_base',
+        'description',
+    ];
 
-    protected $casts = ['debit' => 'decimal:2', 'credit' => 'decimal:2'];
+    protected $casts = [
+        'debit'       => 'decimal:2',
+        'credit'      => 'decimal:2',
+        'debit_base'  => 'decimal:2',
+        'credit_base' => 'decimal:2',
+    ];
 
     public function entry()
     {

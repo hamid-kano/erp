@@ -49,20 +49,25 @@ class AccountController extends Controller
     public function create()
     {
         return Inertia::render('Accounting/Accounts/Form', [
-            'parents' => Account::postable()->orderBy('_lft')->get(['id', 'code', 'name']),
-            'types'   => ['asset', 'liability', 'equity', 'revenue', 'expense'],
+            'parents'    => Account::postable()->orderBy('_lft')->get(['id', 'code', 'name']),
+            'types'      => ['asset', 'liability', 'equity', 'revenue', 'expense'],
+            'currencies' => \App\Modules\Currency\Infrastructure\Models\Currency::active()
+                                ->orderBy('code')->get(['id', 'code', 'name', 'symbol']),
         ]);
     }
 
     public function store(Request $request)
     {
         $data = $request->validate([
-            'code'           => ['required', 'string', 'max:20'],
-            'name'           => ['required', 'string', 'max:255'],
-            'type'           => ['required', 'in:asset,liability,equity,revenue,expense'],
-            'normal_balance' => ['required', 'in:debit,credit'],
-            'parent_id'      => ['nullable', 'exists:accounts,id'],
-            'is_postable'    => ['boolean'],
+            'code'                 => ['required', 'string', 'max:20'],
+            'name'                 => ['required', 'string', 'max:255'],
+            'type'                 => ['required', 'in:asset,liability,equity,revenue,expense'],
+            'normal_balance'       => ['required', 'in:debit,credit'],
+            'parent_id'            => ['nullable', 'exists:accounts,id'],
+            'currency_id'          => ['nullable', 'exists:currencies,id'],
+            'is_postable'          => ['boolean'],
+            'opening_balance'      => ['nullable', 'numeric'],
+            'opening_balance_date' => ['nullable', 'date'],
         ]);
 
         Account::create($data);
@@ -73,9 +78,11 @@ class AccountController extends Controller
     public function edit(Account $account)
     {
         return Inertia::render('Accounting/Accounts/Form', [
-            'account' => $account,
-            'parents' => Account::where('id', '!=', $account->id)->orderBy('_lft')->get(['id', 'code', 'name']),
-            'types'   => ['asset', 'liability', 'equity', 'revenue', 'expense'],
+            'account'    => $account,
+            'parents'    => Account::where('id', '!=', $account->id)->orderBy('_lft')->get(['id', 'code', 'name']),
+            'types'      => ['asset', 'liability', 'equity', 'revenue', 'expense'],
+            'currencies' => \App\Modules\Currency\Infrastructure\Models\Currency::active()
+                                ->orderBy('code')->get(['id', 'code', 'name', 'symbol']),
         ]);
     }
 
@@ -84,12 +91,15 @@ class AccountController extends Controller
         $account->assertCanEdit();
 
         $data = $request->validate([
-            'code'           => ['required', 'string', 'max:20'],
-            'name'           => ['required', 'string', 'max:255'],
-            'type'           => ['required', 'in:asset,liability,equity,revenue,expense'],
-            'normal_balance' => ['required', 'in:debit,credit'],
-            'parent_id'      => ['nullable', 'exists:accounts,id'],
-            'is_postable'    => ['boolean'],
+            'code'                 => ['required', 'string', 'max:20'],
+            'name'                 => ['required', 'string', 'max:255'],
+            'type'                 => ['required', 'in:asset,liability,equity,revenue,expense'],
+            'normal_balance'       => ['required', 'in:debit,credit'],
+            'parent_id'            => ['nullable', 'exists:accounts,id'],
+            'currency_id'          => ['nullable', 'exists:currencies,id'],
+            'is_postable'          => ['boolean'],
+            'opening_balance'      => ['nullable', 'numeric'],
+            'opening_balance_date' => ['nullable', 'date'],
         ]);
 
         $account->update($data);

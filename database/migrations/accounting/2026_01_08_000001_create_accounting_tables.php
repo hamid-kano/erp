@@ -8,10 +8,9 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // قوالب شجرة الحسابات (مشتركة بين كل tenants)
         Schema::create('account_templates', function (Blueprint $table) {
             $table->id();
-            $table->string('name');                    // "IFRS Standard", "Simple"
+            $table->string('name');
             $table->string('description')->nullable();
             $table->timestamps();
         });
@@ -33,21 +32,23 @@ return new class extends Migration
             $table->foreign('template_id')->references('id')->on('account_templates')->cascadeOnDelete();
         });
 
-        // شجرة الحسابات الفعلية لكل tenant
         Schema::create('accounts', function (Blueprint $table) {
             $table->id();
             $table->string('tenant_id')->index();
-            $table->unsignedBigInteger('template_item_id')->nullable(); // المصدر من القالب
+            $table->unsignedBigInteger('template_item_id')->nullable();
             $table->unsignedBigInteger('parent_id')->nullable();
+            $table->unsignedBigInteger('currency_id')->nullable();      // null = عملة الشركة الأساسية
             $table->string('code');
             $table->string('name');
             $table->enum('type', ['asset', 'liability', 'equity', 'revenue', 'expense']);
             $table->enum('normal_balance', ['debit', 'credit']);
-            $table->boolean('is_postable')->default(false);  // هل يقبل قيود؟
-            $table->boolean('is_locked')->default(false);    // مقفل بعد الاستخدام
+            $table->boolean('is_postable')->default(false);
+            $table->boolean('is_locked')->default(false);
             $table->boolean('is_active')->default(true);
-            $table->integer('_lft')->default(0);             // Nested Set
-            $table->integer('_rgt')->default(0);             // Nested Set
+            $table->decimal('opening_balance', 15, 2)->default(0);      // رصيد الافتتاح
+            $table->date('opening_balance_date')->nullable();            // تاريخ رصيد الافتتاح
+            $table->integer('_lft')->default(0);
+            $table->integer('_rgt')->default(0);
             $table->integer('depth')->default(0);
             $table->timestamps();
             $table->softDeletes();
@@ -60,6 +61,8 @@ return new class extends Migration
         Schema::create('journal_entries', function (Blueprint $table) {
             $table->id();
             $table->string('tenant_id')->index();
+            $table->unsignedBigInteger('currency_id')->nullable();       // عملة القيد
+            $table->decimal('exchange_rate', 20, 8)->default(1);         // سعر الصرف وقت القيد
             $table->date('date');
             $table->string('description');
             $table->string('reference')->nullable();
@@ -77,8 +80,10 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('entry_id');
             $table->unsignedBigInteger('account_id');
-            $table->decimal('debit', 15, 2)->default(0);
-            $table->decimal('credit', 15, 2)->default(0);
+            $table->decimal('debit', 15, 2)->default(0);                 // بعملة القيد
+            $table->decimal('credit', 15, 2)->default(0);                // بعملة القيد
+            $table->decimal('debit_base', 15, 2)->default(0);            // بالعملة الأساسية
+            $table->decimal('credit_base', 15, 2)->default(0);           // بالعملة الأساسية
             $table->string('description')->nullable();
             $table->timestamps();
 

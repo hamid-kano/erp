@@ -12,13 +12,18 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call(AccountTemplateSeeder::class);
+        $this->call(CurrencySeeder::class);
+
+        // جلب عملة الريال السعودي
+        $sar = \App\Modules\Currency\Infrastructure\Models\Currency::where('code', 'SAR')->first();
 
         // Shared Tenant (صغير)
         $sharedTenant = Tenant::create([
-            'id'              => 'demo-shared',
-            'name'            => 'شركة تجريبية (مشتركة)',
-            'plan'            => 'starter',
-            'tenancy_db_name' => null,   // null = Shared DB
+            'id'               => 'demo-shared',
+            'name'             => 'شركة تجريبية (مشتركة)',
+            'plan'             => 'starter',
+            'tenancy_db_name'  => null,
+            'base_currency_id' => $sar?->id,
         ]);
 
         User::create([

@@ -6,25 +6,48 @@ use App\Core\Shared\Exceptions\DomainException;
 use App\Core\Tenancy\TenantManager;
 use App\Modules\Accounting\Infrastructure\Models\Account;
 use App\Modules\Accounting\Infrastructure\Models\JournalEntry;
+use App\Modules\Currency\Domain\Services\CurrencyService;
 use Illuminate\Support\Facades\DB;
 
 class PostingService
 {
-    public function __construct(private TenantManager $tenantManager) {}
+    public function __construct(
+        private TenantManager   $tenantManager,
+        private CurrencyService $currencyService,
+    ) {}
 
+    /**
+     * @param array $data [
+     *   'date', 'description', 'reference',
+     *   'currency_id' (optional - default = base currency),
+     *   'lines' => [['account_id', 'debit', 'credit', 'description']]
+     * ]
+     */
     public function post(array $data): JournalEntry
     {
         return DB::transaction(function () use ($data) {
             $this->assertBalanced($data['lines']);
             $this->assertMinTwoLines($data['lines']);
 
+            $baseCurrencyId = $this->tenantManager->getBaseCurrencyId();
+            $currencyId     = $data['currency_id'] ?? $baseCurrencyId;
+            $date           = $data['date'];
+
+            // حساب سعر الصرف
+            $exchangeRate = 1.0;
+            if ($currencyId && $baseCurrencyId && $currencyId !== $baseCurrencyId) {
+                $exchangeRate = $this->currencyService->getRate($currencyId, $baseCurrencyId, $date);
+            }
+
             $entry = JournalEntry::create([
-                'tenant_id'   => $this->tenantManager->getId(),
-                'date'        => $data['date'],
-                'description' => $data['description'],
-                'reference'   => $data['reference'] ?? null,
-                'status'      => 'draft',
-                'created_by'  => auth()->id(),
+                'tenant_id'     => $this->tenantManager->getId(),
+                'currency_id'   => $currencyId,
+                'exchange_rate' => $exchangeRate,
+                'date'          => $date,
+                'description'   => $data['description'],
+                'reference'     => $data['reference'] ?? null,
+                'status'        => 'draft',
+                'created_by'    => auth()->id(),
             ]);
 
             foreach ($data['lines'] as $line) {
@@ -40,10 +63,11 @@ class PostingService
                     'account_id'  => $account->id,
                     'debit'       => $debit,
                     'credit'      => $credit,
+                    'debit_base'  => round($debit  * $exchangeRate, 2),
+                    'credit_base' => round($credit * $exchangeRate, 2),
                     'description' => $line['description'] ?? null,
                 ]);
 
-                // نقفل الحساب فقط لو لم يكن مقفلاً بعد
                 if (!$account->is_locked) {
                     $account->update(['is_locked' => true]);
                 }
@@ -73,6 +97,7 @@ class PostingService
             'date'        => now()->toDateString(),
             'description' => "عكس قيد #{$entry->id}: {$reason}",
             'reference'   => "REV-{$entry->id}",
+            'currency_id' => $entry->currency_id,
             'lines'       => $lines,
         ]);
     }

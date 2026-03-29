@@ -4,22 +4,30 @@ namespace App\Modules\Accounting\Infrastructure\Models;
 
 use App\Core\BaseModel;
 use App\Core\Shared\Exceptions\DomainException;
+use App\Modules\Currency\Infrastructure\Models\Currency;
 
 class JournalEntry extends BaseModel
 {
     protected $fillable = [
-        'tenant_id', 'date', 'description',
-        'reference', 'status', 'posted_at', 'created_by',
+        'tenant_id', 'currency_id', 'exchange_rate',
+        'date', 'description', 'reference',
+        'status', 'posted_at', 'created_by',
     ];
 
     protected $casts = [
-        'date'      => 'date',
-        'posted_at' => 'datetime',
+        'date'          => 'date',
+        'posted_at'     => 'datetime',
+        'exchange_rate' => 'decimal:8',
     ];
 
     public function lines()
     {
         return $this->hasMany(JournalLine::class, 'entry_id');
+    }
+
+    public function currency()
+    {
+        return $this->belongsTo(Currency::class);
     }
 
     public function isPosted(): bool
@@ -40,8 +48,6 @@ class JournalEntry extends BaseModel
             throw new DomainException('لا يمكن عكس قيد غير مرحّل');
         }
     }
-
-    // ── Scopes ────────────────────────────────────────────
 
     public function scopePosted($query)
     {

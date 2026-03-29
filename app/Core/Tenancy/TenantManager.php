@@ -3,6 +3,7 @@
 namespace App\Core\Tenancy;
 
 use App\Models\Tenant;
+use App\Modules\Currency\Infrastructure\Models\Currency;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 
@@ -63,5 +64,20 @@ class TenantManager
     {
         $this->current = null;
         Session::forget('tenant_id');
+    }
+
+    /**
+     * العملة الأساسية للـ tenant الحالي
+     */
+    public function getBaseCurrency(): Currency
+    {
+        return $this->current?->base_currency
+            ?? Currency::where('code', 'SAR')->first();
+    }
+
+    public function getBaseCurrencyId(): ?int
+    {
+        return $this->current?->base_currency_id
+            ?? Currency::where('code', 'SAR')->value('id');
     }
 }

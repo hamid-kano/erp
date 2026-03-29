@@ -10,6 +10,7 @@ export interface User {
 export interface PageProps {
     auth: { user: User };
     flash?: { success?: string; error?: string };
+    currency: { code: string; symbol: string; decimal_places: number };
 }
 
 export interface PaginatedData<T> {

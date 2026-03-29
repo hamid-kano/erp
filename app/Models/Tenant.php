@@ -2,27 +2,21 @@
 
 namespace App\Models;
 
-use Stancl\Tenancy\Database\Models\Tenant as BaseTenant;
+use App\Modules\Currency\Infrastructure\Models\Currency;
 use Stancl\Tenancy\Contracts\TenantWithDatabase;
 use Stancl\Tenancy\Database\Concerns\HasDatabase;
 use Stancl\Tenancy\Database\Concerns\HasDomains;
+use Stancl\Tenancy\Database\Models\Tenant as BaseTenant;
 
 class Tenant extends BaseTenant implements TenantWithDatabase
 {
     use HasDatabase, HasDomains;
 
-    /**
-     * الأعمدة الحقيقية في الجدول
-     * باقي البيانات تُخزن في عمود data (JSON)
-     */
     public static function getCustomColumns(): array
     {
-        return ['id', 'name', 'plan', 'is_active'];
+        return ['id', 'name', 'plan', 'is_active', 'base_currency_id'];
     }
 
-    /**
-     * tenancy_db_name مخزنة في data JSON تلقائياً بواسطة stancl
-     */
     public function hasDedicatedDatabase(): bool
     {
         return !empty($this->tenancy_db_name);
@@ -33,11 +27,23 @@ class Tenant extends BaseTenant implements TenantWithDatabase
         return !$this->hasDedicatedDatabase();
     }
 
-    /**
-     * getDatabaseName مطلوبة من TenantWithDatabase interface
-     */
     public function getDatabaseName(): string
     {
         return $this->tenancy_db_name ?? ('erp_tenant_' . $this->id);
+    }
+
+    // ── Currency ──────────────────────────────────────────
+
+    public function baseCurrency()
+    {
+        return $this->belongsTo(Currency::class, 'base_currency_id');
+    }
+
+    /**
+     * جلب العملة الأساسية أو SAR كافتراضي
+     */
+    public function getBaseCurrencyAttribute(): Currency
+    {
+        return $this->baseCurrency ?? Currency::where('code', 'SAR')->first();
     }
 }
