@@ -5,6 +5,8 @@ namespace App\Providers;
 use App\Core\Tenancy\TenantManager;
 use App\Modules\Inventory\Domain\Events\StockDepleted;
 use App\Modules\Inventory\Application\Listeners\HandleStockDepleted;
+use App\Modules\Inventory\Domain\Events\StockWrittenOff;
+use App\Modules\Inventory\Application\Listeners\HandleStockWrittenOff;
 use App\Modules\Purchasing\Domain\Events\GoodsReceived;
 use App\Modules\Purchasing\Application\Listeners\HandleGoodsReceived;
 use App\Modules\Sales\Domain\Events\InvoiceIssued;
@@ -26,9 +28,10 @@ class AppServiceProvider extends ServiceProvider
 
     private function registerEvents(): void
     {
-        Event::listen(GoodsReceived::class, HandleGoodsReceived::class);
-        Event::listen(InvoiceIssued::class,  HandleInvoiceIssued::class);
-        Event::listen(StockDepleted::class,  HandleStockDepleted::class);
+        Event::listen(GoodsReceived::class,   HandleGoodsReceived::class);
+        Event::listen(InvoiceIssued::class,    HandleInvoiceIssued::class);
+        Event::listen(StockDepleted::class,    HandleStockDepleted::class);
+        Event::listen(StockWrittenOff::class,  HandleStockWrittenOff::class);
     }
 
     private function shareInertiaData(): void

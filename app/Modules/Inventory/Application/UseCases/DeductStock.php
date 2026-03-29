@@ -24,6 +24,7 @@ class DeductStock
             warehouse_id:   $warehouseId,
             quantity:       -abs($quantity),
             type:           'out',
+            reason:         'sale',
             unit_cost:      $quantity > 0 ? $cogs / $quantity : 0,
             reference_type: $refType,
             reference_id:   $refId,

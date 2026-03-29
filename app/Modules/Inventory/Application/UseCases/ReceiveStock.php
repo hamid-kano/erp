@@ -23,6 +23,7 @@ class ReceiveStock
             warehouse_id:   $warehouseId,
             quantity:       abs($quantity),
             type:           'in',
+            reason:         'purchase',
             unit_cost:      $unitCost,
             reference_type: $refType,
             reference_id:   $refId,

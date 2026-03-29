@@ -51,14 +51,36 @@ return new class extends Migration
             $table->unsignedBigInteger('warehouse_id');
             $table->decimal('quantity', 15, 3);
             $table->enum('type', ['in', 'out', 'transfer', 'adjustment']);
+            $table->string('reason')->nullable(); // sale, purchase, damage, theft, expired, return, correction
             $table->decimal('unit_cost', 15, 2)->default(0);
+            $table->text('notes')->nullable();
             $table->string('reference_type')->nullable();
             $table->unsignedBigInteger('reference_id')->nullable();
             $table->unsignedBigInteger('created_by')->nullable();
             $table->timestamps();
 
             $table->index(['tenant_id', 'product_id', 'warehouse_id']);
+            $table->index(['tenant_id', 'type', 'reason']);
             $table->index(['reference_type', 'reference_id']);
+        });
+
+        Schema::create('stock_adjustments', function (Blueprint $table) {
+            $table->id();
+            $table->string('tenant_id')->index();
+            $table->unsignedBigInteger('product_id');
+            $table->unsignedBigInteger('warehouse_id');
+            $table->decimal('quantity', 15, 3);           // الكمية المتأثرة
+            $table->enum('adjustment_type', ['damage', 'theft', 'expired', 'count_correction', 'other']);
+            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
+            $table->text('notes')->nullable();
+            $table->unsignedBigInteger('requested_by')->nullable();
+            $table->unsignedBigInteger('approved_by')->nullable();
+            $table->timestamp('approved_at')->nullable();
+            $table->unsignedBigInteger('movement_id')->nullable(); // FK بعد الموافقة
+            $table->timestamps();
+
+            $table->index(['tenant_id', 'status']);
+            $table->index(['tenant_id', 'adjustment_type']);
         });
 
         Schema::create('stock_reservations', function (Blueprint $table) {
@@ -107,6 +129,7 @@ return new class extends Migration
         Schema::dropIfExists('stock_snapshots');
         Schema::dropIfExists('cost_layers');
         Schema::dropIfExists('stock_reservations');
+        Schema::dropIfExists('stock_adjustments');
         Schema::dropIfExists('stock_movements');
         Schema::dropIfExists('products');
         Schema::dropIfExists('units');
