@@ -6,7 +6,7 @@ use Inertia\Inertia;
 require __DIR__.'/auth.php';
 
 Route::middleware('auth')->group(function () {
-    Route::get('/', fn() => Inertia::render('Analytics/Dashboard/Index'))->name('dashboard');
+    Route::get('/', [\App\Modules\Analytics\Web\Controllers\DashboardController::class, 'index'])->name('dashboard');
 
     require __DIR__.'/modules/crm.php';
     require __DIR__.'/modules/inventory.php';

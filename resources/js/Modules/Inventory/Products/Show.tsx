@@ -1,6 +1,6 @@
-import { Link } from '@inertiajs/react';
-import { ArrowRight, TrendingUp, TrendingDown, RefreshCw } from 'lucide-react';
-import { PaginatedData } from '@/Core/types';
+import AppLayout from '@/Core/Layouts/AppLayout';
+import { Head, Link } from '@inertiajs/react';
+import { ArrowRight, TrendingUp, TrendingDown, RefreshCw, Pencil } from 'lucide-react';
 
 interface Product {
     id: number; name: string; sku: string | null;
@@ -14,81 +14,85 @@ interface Movement {
     unit_cost: number; created_at: string;
 }
 
-interface Props {
-    product: Product;
-    movements: PaginatedData<Movement>;
-}
-
 const typeConfig: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
-    in:         { label: 'وارد',    color: 'text-green-600 bg-green-50',  icon: <TrendingUp className="w-4 h-4" /> },
-    out:        { label: 'صادر',    color: 'text-red-600 bg-red-50',      icon: <TrendingDown className="w-4 h-4" /> },
-    adjustment: { label: 'تسوية',   color: 'text-blue-600 bg-blue-50',    icon: <RefreshCw className="w-4 h-4" /> },
-    transfer:   { label: 'تحويل',   color: 'text-purple-600 bg-purple-50', icon: <RefreshCw className="w-4 h-4" /> },
+    in:         { label: 'وارد',   color: 'bg-green-500/10 text-green-400',   icon: <TrendingUp size={13} /> },
+    out:        { label: 'صادر',   color: 'bg-red-500/10 text-red-400',       icon: <TrendingDown size={13} /> },
+    adjustment: { label: 'تسوية',  color: 'bg-blue-500/10 text-blue-400',     icon: <RefreshCw size={13} /> },
+    transfer:   { label: 'تحويل',  color: 'bg-purple-500/10 text-purple-400', icon: <RefreshCw size={13} /> },
 };
 
-export default function ProductShow({ product, movements }: Props) {
+export default function ProductShow({ product, movements }: {
+    product: Product;
+    movements: { data: Movement[]; total: number };
+}) {
     return (
-        <div className="p-6 space-y-6" dir="rtl">
-            <div className="flex items-center gap-3">
-                <Link href={route('products.index')} className="text-gray-500 hover:text-gray-700">
-                    <ArrowRight className="w-5 h-5" />
-                </Link>
-                <h1 className="text-2xl font-bold">{product.name}</h1>
-                {product.sku && <span className="text-gray-400 font-mono text-sm">#{product.sku}</span>}
-            </div>
-
-            {/* Info Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {[
-                    { label: 'الفئة',        value: product.category?.name ?? '-' },
-                    { label: 'وحدة القياس',  value: product.unit ? `${product.unit.name} (${product.unit.symbol})` : '-' },
-                    { label: 'سعر التكلفة',  value: Number(product.cost_price).toLocaleString() },
-                    { label: 'سعر البيع',    value: Number(product.sell_price).toLocaleString() },
-                ].map((item) => (
-                    <div key={item.label} className="bg-white rounded-xl border shadow-sm p-4">
-                        <p className="text-xs text-gray-500 mb-1">{item.label}</p>
-                        <p className="font-semibold">{item.value}</p>
+        <AppLayout>
+            <Head title={product.name} />
+            <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <Link href="/products" className="text-slate-400 hover:text-white"><ArrowRight size={18} /></Link>
+                        <h1 className="text-xl font-bold text-white">{product.name}</h1>
+                        {product.sku && <span className="text-slate-500 font-mono text-sm">#{product.sku}</span>}
                     </div>
-                ))}
-            </div>
-
-            {/* Movements */}
-            <div className="bg-white rounded-xl border shadow-sm overflow-hidden">
-                <div className="px-4 py-3 border-b bg-gray-50">
-                    <h2 className="font-semibold">حركات المخزون</h2>
+                    <Link href={`/products/${product.id}/edit`}
+                        className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg text-sm transition-colors">
+                        <Pencil size={14} /> تعديل
+                    </Link>
                 </div>
-                <table className="w-full text-sm">
-                    <thead className="bg-gray-50 border-b">
-                        <tr>
-                            <th className="text-right px-4 py-3 font-medium text-gray-600">النوع</th>
-                            <th className="text-right px-4 py-3 font-medium text-gray-600">الكمية</th>
-                            <th className="text-right px-4 py-3 font-medium text-gray-600">سعر الوحدة</th>
-                            <th className="text-right px-4 py-3 font-medium text-gray-600">التاريخ</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y">
-                        {movements.data.length === 0 ? (
-                            <tr><td colSpan={4} className="text-center py-8 text-gray-400">لا توجد حركات</td></tr>
-                        ) : movements.data.map((m) => {
-                            const cfg = typeConfig[m.type] ?? typeConfig.adjustment;
-                            return (
-                                <tr key={m.id} className="hover:bg-gray-50">
-                                    <td className="px-4 py-3">
-                                        <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${cfg.color}`}>
-                                            {cfg.icon} {cfg.label}
-                                        </span>
-                                    </td>
-                                    <td className={`px-4 py-3 font-medium ${Number(m.quantity) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                        {Number(m.quantity) >= 0 ? '+' : ''}{Number(m.quantity).toLocaleString()}
-                                    </td>
-                                    <td className="px-4 py-3">{Number(m.unit_cost).toLocaleString()}</td>
-                                    <td className="px-4 py-3 text-gray-500">{new Date(m.created_at).toLocaleDateString('ar')}</td>
-                                </tr>
-                            );
-                        })}
-                    </tbody>
-                </table>
+
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {[
+                        { label: 'الفئة',       value: product.category?.name ?? '-' },
+                        { label: 'وحدة القياس', value: product.unit ? `${product.unit.name} (${product.unit.symbol})` : '-' },
+                        { label: 'سعر التكلفة', value: `${Number(product.cost_price).toLocaleString()} ر.س` },
+                        { label: 'سعر البيع',   value: `${Number(product.sell_price).toLocaleString()} ر.س` },
+                    ].map(item => (
+                        <div key={item.label} className="bg-slate-900 border border-slate-800 rounded-xl p-4">
+                            <p className="text-slate-400 text-xs mb-1">{item.label}</p>
+                            <p className="text-white font-semibold">{item.value}</p>
+                        </div>
+                    ))}
+                </div>
+
+                <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+                    <div className="px-4 py-3 border-b border-slate-800 flex items-center justify-between">
+                        <h2 className="text-white font-medium">حركات المخزون</h2>
+                        <span className="text-slate-400 text-xs">{movements.total} حركة</span>
+                    </div>
+                    <table className="w-full text-sm">
+                        <thead className="border-b border-slate-800">
+                            <tr className="text-slate-400">
+                                <th className="text-right px-4 py-3">النوع</th>
+                                <th className="text-right px-4 py-3">الكمية</th>
+                                <th className="text-right px-4 py-3">سعر الوحدة</th>
+                                <th className="text-right px-4 py-3">التاريخ</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-800">
+                            {movements.data.length === 0 ? (
+                                <tr><td colSpan={4} className="px-4 py-8 text-center text-slate-500">لا توجد حركات</td></tr>
+                            ) : movements.data.map(m => {
+                                const cfg = typeConfig[m.type] ?? typeConfig.adjustment;
+                                return (
+                                    <tr key={m.id} className="hover:bg-slate-800/50">
+                                        <td className="px-4 py-3">
+                                            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs ${cfg.color}`}>
+                                                {cfg.icon} {cfg.label}
+                                            </span>
+                                        </td>
+                                        <td className={`px-4 py-3 font-medium ${Number(m.quantity) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                            {Number(m.quantity) >= 0 ? '+' : ''}{Number(m.quantity).toLocaleString()}
+                                        </td>
+                                        <td className="px-4 py-3 text-slate-300">{Number(m.unit_cost).toLocaleString()}</td>
+                                        <td className="px-4 py-3 text-slate-400">{new Date(m.created_at).toLocaleDateString('ar')}</td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        </div>
+        </AppLayout>
     );
 }
