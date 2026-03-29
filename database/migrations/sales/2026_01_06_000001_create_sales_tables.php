@@ -47,6 +47,7 @@ return new class extends Migration
             $table->date('date');
             $table->date('due_date')->nullable();
             $table->decimal('total', 15, 2)->default(0);
+            $table->decimal('cogs', 15, 2)->default(0);   // تكلفة البضاعة المباعة
             $table->decimal('paid', 15, 2)->default(0);
             $table->enum('status', ['draft', 'issued', 'partial', 'paid', 'cancelled'])->default('draft');
             $table->timestamps();

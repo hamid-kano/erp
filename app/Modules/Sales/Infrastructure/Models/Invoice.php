@@ -15,6 +15,7 @@ class Invoice extends BaseModel
         'due_date' => 'date',
         'total'    => 'decimal:2',
         'paid'     => 'decimal:2',
+        'cogs'     => 'decimal:2',
     ];
 
     public function customer(): BelongsTo  { return $this->belongsTo(Customer::class); }

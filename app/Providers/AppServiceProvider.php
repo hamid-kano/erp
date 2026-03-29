@@ -2,7 +2,14 @@
 
 namespace App\Providers;
 
+use App\Modules\Inventory\Domain\Events\StockDepleted;
+use App\Modules\Inventory\Application\Listeners\HandleStockDepleted;
+use App\Modules\Purchasing\Domain\Events\GoodsReceived;
+use App\Modules\Purchasing\Application\Listeners\HandleGoodsReceived;
+use App\Modules\Sales\Domain\Events\InvoiceIssued;
+use App\Modules\Sales\Application\Listeners\HandleInvoiceIssued;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use Inertia\Inertia;
 
@@ -11,6 +18,19 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void {}
 
     public function boot(): void
+    {
+        $this->registerEvents();
+        $this->shareInertiaData();
+    }
+
+    private function registerEvents(): void
+    {
+        Event::listen(GoodsReceived::class, HandleGoodsReceived::class);
+        Event::listen(InvoiceIssued::class,  HandleInvoiceIssued::class);
+        Event::listen(StockDepleted::class,  HandleStockDepleted::class);
+    }
+
+    private function shareInertiaData(): void
     {
         Inertia::share([
             'auth' => fn () => [

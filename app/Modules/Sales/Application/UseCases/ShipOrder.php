@@ -48,16 +48,27 @@ class ShipOrder
                 );
             }
 
+            // حساب تكلفة البضاعة المباعة (COGS) عبر FIFO
+            $totalCogs = 0;
+            foreach ($order->items as $item) {
+                $totalCogs += $this->inventoryService->consumeFifo(
+                    $item->product_id,
+                    $order->warehouse_id,
+                    $item->quantity
+                );
+            }
+
             $order->update(['status' => 'shipped']);
 
             $invoice = Invoice::create([
                 'tenant_id'   => $this->tenantManager->getId(),
                 'customer_id' => $order->customer_id,
                 'order_id'    => $order->id,
-                'number'      => DocumentSequence::next('INV', $this->tenantManager->getId()),
+                'number'      => DocumentSequence::next('INV'),
                 'date'        => now()->toDateString(),
                 'due_date'    => now()->addDays(30)->toDateString(),
                 'total'       => $order->total,
+                'cogs'        => $totalCogs,
                 'paid'        => 0,
                 'status'      => 'issued',
             ]);
