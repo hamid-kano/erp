@@ -13,4 +13,6 @@ Route::middleware('auth')->group(function () {
     require __DIR__.'/modules/warehouse.php';
     require __DIR__.'/modules/purchasing.php';
     require __DIR__.'/modules/sales.php';
+    require __DIR__.'/modules/payments.php';
+    require __DIR__.'/modules/accounting.php';
 });
