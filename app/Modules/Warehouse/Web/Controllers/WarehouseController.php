@@ -59,8 +59,12 @@ class WarehouseController extends Controller
             ]);
 
         return Inertia::render('Warehouse/Show', [
-            'warehouse' => $warehouse->load('locations'),
-            'stock'     => $stock,
+            'warehouse'  => $warehouse->load('locations'),
+            'stock'      => $stock,
+            'warehouses' => Warehouse::where('id', '!=', $warehouse->id)
+                                ->where('is_active', true)
+                                ->orderBy('name')
+                                ->get(['id', 'name']),
         ]);
     }
 

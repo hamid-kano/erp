@@ -66,6 +66,7 @@ const navItems: NavItem[] = [
         children: [
             { label: 'القيود', href: '/journal-entries' },
             { label: 'الحسابات', href: '/accounts' },
+            { label: 'ميزان المراجعة', href: '/reports/trial-balance' },
         ],
     },
     {
