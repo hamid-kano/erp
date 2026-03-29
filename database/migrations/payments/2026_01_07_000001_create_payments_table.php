@@ -11,7 +11,10 @@ return new class extends Migration
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
             $table->string('tenant_id')->index();
+            $table->unsignedBigInteger('currency_id')->nullable();
+            $table->decimal('exchange_rate', 20, 8)->default(1);
             $table->decimal('amount', 15, 2);
+            $table->decimal('amount_base', 15, 2)->default(0);    // بالعملة الأساسية
             $table->enum('method', ['cash', 'bank', 'cheque', 'other'])->default('cash');
             $table->enum('direction', ['in', 'out']);
             $table->date('date');

@@ -61,16 +61,19 @@ class ShipOrder
             $order->update(['status' => 'shipped']);
 
             $invoice = Invoice::create([
-                'tenant_id'   => $this->tenantManager->getId(),
-                'customer_id' => $order->customer_id,
-                'order_id'    => $order->id,
-                'number'      => DocumentSequence::next('INV'),
-                'date'        => now()->toDateString(),
-                'due_date'    => now()->addDays(30)->toDateString(),
-                'total'       => $order->total,
-                'cogs'        => $totalCogs,
-                'paid'        => 0,
-                'status'      => 'issued',
+                'tenant_id'     => $this->tenantManager->getId(),
+                'customer_id'   => $order->customer_id,
+                'order_id'      => $order->id,
+                'currency_id'   => $order->currency_id,
+                'exchange_rate' => $order->exchange_rate,
+                'number'        => DocumentSequence::next('INV'),
+                'date'          => now()->toDateString(),
+                'due_date'      => now()->addDays(30)->toDateString(),
+                'total'         => $order->total,
+                'total_base'    => $order->total_base,
+                'cogs'          => $totalCogs,
+                'paid'          => 0,
+                'status'        => 'issued',
             ]);
 
             InvoiceIssued::dispatch($invoice);

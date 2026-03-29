@@ -29,14 +29,29 @@ class PaymentController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'amount'    => ['required', 'numeric', 'min:0.01'],
-            'method'    => ['required', 'string'],
-            'date'      => ['required', 'date'],
-            'direction' => ['required', 'in:in,out'],
-            'notes'     => ['nullable', 'string'],
+            'amount'      => ['required', 'numeric', 'min:0.01'],
+            'currency_id' => ['nullable', 'exists:currencies,id'],
+            'method'      => ['required', 'string'],
+            'date'        => ['required', 'date'],
+            'direction'   => ['required', 'in:in,out'],
+            'notes'       => ['nullable', 'string'],
         ]);
 
-        Payment::create($data);
+        $baseCurrencyId = app(\App\Core\Tenancy\TenantManager::class)->getBaseCurrencyId();
+        $currencyId     = $data['currency_id'] ?? $baseCurrencyId;
+        $exchangeRate   = 1.0;
+
+        if ($currencyId && $baseCurrencyId && $currencyId !== $baseCurrencyId) {
+            $exchangeRate = app(\App\Modules\Currency\Domain\Services\CurrencyService::class)
+                ->getRate($currencyId, $baseCurrencyId, $data['date']);
+        }
+
+        Payment::create(array_merge($data, [
+            'currency_id'   => $currencyId,
+            'exchange_rate' => $exchangeRate,
+            'amount_base'   => round($data['amount'] * $exchangeRate, 2),
+            'created_by'    => auth()->id(),
+        ]));
 
         return redirect()->route('payments.index')->with('success', 'تم تسجيل الدفعة بنجاح');
     }
