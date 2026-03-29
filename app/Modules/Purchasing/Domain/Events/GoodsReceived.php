@@ -8,6 +8,5 @@ use Illuminate\Foundation\Events\Dispatchable;
 class GoodsReceived
 {
     use Dispatchable;
-
     public function __construct(public readonly PurchaseOrder $order) {}
 }

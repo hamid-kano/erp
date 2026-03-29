@@ -8,7 +8,7 @@ use App\Core\Tenancy\TenantManager;
 use App\Modules\Inventory\Application\UseCases\DeductStock;
 use App\Modules\Inventory\Domain\Services\InventoryService;
 use App\Modules\Sales\Domain\Events\InvoiceIssued;
-use App\Modules\Sales\Infrastructure\Models\Invoice;
+use App\Modules\Sales\Infrastructure\Models\SalesInvoice;
 use App\Modules\Sales\Infrastructure\Models\SalesOrder;
 use Illuminate\Support\Facades\DB;
 
@@ -60,7 +60,7 @@ class ShipOrder
 
             $order->update(['status' => 'shipped']);
 
-            $invoice = Invoice::create([
+            $invoice = SalesInvoice::create([
                 'tenant_id'     => $this->tenantManager->getId(),
                 'customer_id'   => $order->customer_id,
                 'order_id'      => $order->id,

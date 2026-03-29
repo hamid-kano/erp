@@ -50,6 +50,7 @@ const navItems: NavItem[] = [
         icon: <ShoppingCart size={18} />,
         children: [
             { label: 'أوامر الشراء', href: '/purchase-orders' },
+            { label: 'فواتير الشراء', href: '/purchase-invoices' },
         ],
     },
     {
@@ -57,7 +58,7 @@ const navItems: NavItem[] = [
         icon: <TrendingUp size={18} />,
         children: [
             { label: 'أوامر البيع', href: '/sales-orders' },
-            { label: 'الفواتير', href: '/invoices' },
+            { label: 'الفواتير', href: '/sales-invoices' },
         ],
     },
     {

@@ -25,7 +25,7 @@ class SalesOrder extends BaseModel
     public function warehouse(): BelongsTo { return $this->belongsTo(Warehouse::class); }
     public function currency(): BelongsTo  { return $this->belongsTo(Currency::class); }
     public function items(): HasMany       { return $this->hasMany(SalesOrderItem::class, 'order_id'); }
-    public function invoice(): HasOne      { return $this->hasOne(Invoice::class, 'order_id'); }
+    public function invoice(): HasOne      { return $this->hasOne(SalesInvoice::class, 'order_id'); }
 
     public function canConfirm(): bool { return $this->status === 'draft'; }
     public function canShip(): bool    { return $this->status === 'confirmed'; }
