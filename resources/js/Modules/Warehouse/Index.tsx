@@ -4,8 +4,7 @@ import { Head, Link, router } from '@inertiajs/react';
 import { Plus, Pencil, Trash2, Warehouse, Eye } from 'lucide-react';
 
 interface WarehouseItem {
-    id: number; name: string; city: string;
-    is_active: boolean; locations_count: number;
+    id: number; name: string; city: string; is_active: boolean;
 }
 
 export default function WarehouseIndex({ warehouses }: { warehouses: { data: WarehouseItem[] } }) {
@@ -33,7 +32,6 @@ export default function WarehouseIndex({ warehouses }: { warehouses: { data: War
                             </div>
                             <h3 className="text-white font-semibold">{w.name}</h3>
                             <p className="text-slate-400 text-sm mt-1">{w.city || 'غير محدد'}</p>
-                            <p className="text-slate-500 text-xs mt-2">{w.locations_count} موقع</p>
                             <div className="flex items-center gap-2 mt-4 pt-4 border-t border-slate-800">
                                 <Link href={`/warehouses/${w.id}`} className="flex items-center gap-1 text-slate-400 hover:text-slate-200 text-xs">
                                     <Eye size={13} /> عرض

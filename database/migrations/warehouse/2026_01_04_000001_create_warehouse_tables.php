@@ -17,22 +17,10 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
         });
-
-        Schema::create('locations', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('warehouse_id');
-            $table->string('code');
-            $table->string('zone')->nullable();
-            $table->string('shelf')->nullable();
-            $table->timestamps();
-
-            $table->unique(['warehouse_id', 'code']);
-        });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('locations');
         Schema::dropIfExists('warehouses');
     }
 };

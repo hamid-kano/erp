@@ -15,9 +15,7 @@ class WarehouseController extends Controller
 {
     public function index(): Response
     {
-        $warehouses = Warehouse::withCount('locations')
-            ->orderBy('name')
-            ->paginate(20);
+        $warehouses = Warehouse::orderBy('name')->paginate(20);
 
         return Inertia::render('Warehouse/Index', ['warehouses' => $warehouses]);
     }
@@ -44,7 +42,6 @@ class WarehouseController extends Controller
 
     public function show(Warehouse $warehouse): Response
     {
-        // المخزون في هذا المستودع
         $stock = Product::active()
             ->withSum(['stockMovements' => fn($q) => $q->where('warehouse_id', $warehouse->id)], 'quantity')
             ->having('stock_movements_sum_quantity', '>', 0)
@@ -59,7 +56,7 @@ class WarehouseController extends Controller
             ]);
 
         return Inertia::render('Warehouse/Show', [
-            'warehouse'  => $warehouse->load('locations'),
+            'warehouse'  => $warehouse,
             'stock'      => $stock,
             'warehouses' => Warehouse::where('id', '!=', $warehouse->id)
                                 ->where('is_active', true)
