@@ -102,13 +102,38 @@ class InventoryService
             ->lockForUpdate()
             ->get();
 
+        $totalAvailable = $layers->sum('remaining_quantity');
+
+        if ($totalAvailable < $quantity) {
+            // لا يوجد cost layers كافية - نستخدم سعر التكلفة الافتراضي للكمية الناقصة
+            $coveredCost    = 0;
+            $coveredQty     = 0;
+            $remaining      = $quantity;
+
+            foreach ($layers as $layer) {
+                if ($remaining <= 0) break;
+                $consume        = min($remaining, $layer->remaining_quantity);
+                $coveredCost   += $consume * $layer->unit_cost;
+                $coveredQty    += $consume;
+                $layer->decrement('remaining_quantity', $consume);
+                $remaining     -= $consume;
+            }
+
+            // الكمية الناقصة نحسب لها متوسط سعر التكلفة الموجودة
+            $avgCost     = $coveredQty > 0 ? $coveredCost / $coveredQty : 0;
+            $missingQty  = $quantity - $coveredQty;
+            $coveredCost += $missingQty * $avgCost;
+
+            return $coveredCost;
+        }
+
         $totalCost = 0;
         $remaining = $quantity;
 
         foreach ($layers as $layer) {
             if ($remaining <= 0) break;
 
-            $consume = min($remaining, $layer->remaining_quantity);
+            $consume    = min($remaining, $layer->remaining_quantity);
             $totalCost += $consume * $layer->unit_cost;
             $layer->decrement('remaining_quantity', $consume);
             $remaining -= $consume;

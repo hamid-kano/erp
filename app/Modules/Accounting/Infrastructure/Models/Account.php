@@ -30,12 +30,17 @@ class Account extends BaseModel
             throw new DomainException("الحساب [{$this->code}] تجميعي ولا يقبل قيوداً");
         }
 
-        if ($this->is_locked) {
-            throw new DomainException("الحساب [{$this->code}] مقفل ولا يمكن التعديل عليه");
-        }
-
         if (!$this->is_active) {
             throw new DomainException("الحساب [{$this->code}] غير نشط");
+        }
+        // is_locked = لا يمكن تعديل بيانات الحساب (اسم/كود)
+        // لكن يظل يقبل قيوداً جديدة - لا نتحقق منه هنا
+    }
+
+    public function assertCanEdit(): void
+    {
+        if ($this->is_locked) {
+            throw new DomainException("الحساب [{$this->code}] مقفل لأنه يحتوي على قيود ولا يمكن تعديل بياناته");
         }
     }
 

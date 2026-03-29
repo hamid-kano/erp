@@ -81,9 +81,7 @@ class AccountController extends Controller
 
     public function update(Request $request, Account $account)
     {
-        if ($account->is_locked) {
-            return back()->with('error', 'الحساب مقفل ولا يمكن تعديله');
-        }
+        $account->assertCanEdit();
 
         $data = $request->validate([
             'code'           => ['required', 'string', 'max:20'],
