@@ -19,6 +19,7 @@ class ProductController extends Controller
     public function index(): Response
     {
         $products = Product::with(['category', 'unit'])
+            ->withStock()
             ->when(request('search'), fn ($q, $s) => $q->where('name', 'like', "%{$s}%")->orWhere('sku', 'like', "%{$s}%"))
             ->when(request('category_id'), fn ($q, $c) => $q->where('category_id', $c))
             ->orderBy('name')

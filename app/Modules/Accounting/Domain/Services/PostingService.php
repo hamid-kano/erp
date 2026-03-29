@@ -3,47 +3,52 @@
 namespace App\Modules\Accounting\Domain\Services;
 
 use App\Core\Shared\Exceptions\DomainException;
+use App\Core\Tenancy\TenantManager;
 use App\Modules\Accounting\Infrastructure\Models\Account;
 use App\Modules\Accounting\Infrastructure\Models\JournalEntry;
 use Illuminate\Support\Facades\DB;
 
 class PostingService
 {
-    /**
-     * إنشاء قيد محاسبي متوازن وترحيله
-     *
-     * @param array $data ['date', 'description', 'reference', 'lines' => [['account_id', 'debit', 'credit']]]
-     */
+    public function __construct(private TenantManager $tenantManager) {}
+
     public function post(array $data): JournalEntry
     {
         return DB::transaction(function () use ($data) {
             $this->assertBalanced($data['lines']);
+            $this->assertMinTwoLines($data['lines']);
 
             $entry = JournalEntry::create([
+                'tenant_id'   => $this->tenantManager->getId(),
                 'date'        => $data['date'],
                 'description' => $data['description'],
                 'reference'   => $data['reference'] ?? null,
                 'status'      => 'draft',
+                'created_by'  => auth()->id(),
             ]);
 
             foreach ($data['lines'] as $line) {
+                $debit  = (float)($line['debit']  ?? 0);
+                $credit = (float)($line['credit'] ?? 0);
+
+                if ($debit === 0.0 && $credit === 0.0) continue;
+
                 $account = Account::findOrFail($line['account_id']);
                 $account->assertCanPost();
 
                 $entry->lines()->create([
                     'account_id'  => $account->id,
-                    'debit'       => $line['debit'] ?? 0,
-                    'credit'      => $line['credit'] ?? 0,
+                    'debit'       => $debit,
+                    'credit'      => $credit,
                     'description' => $line['description'] ?? null,
                 ]);
 
-                // نقفل الحساب بعد أول استخدام
+                // نقفل الحساب فقط لو لم يكن مقفلاً بعد
                 if (!$account->is_locked) {
-                    $account->lock();
+                    $account->update(['is_locked' => true]);
                 }
             }
 
-            // ترحيل القيد
             $entry->update([
                 'status'    => 'posted',
                 'posted_at' => now(),
@@ -53,19 +58,14 @@ class PostingService
         });
     }
 
-    /**
-     * عكس قيد (Reversal) - لا نحذف أبداً
-     */
     public function reverse(JournalEntry $entry, string $reason): JournalEntry
     {
-        if ($entry->status !== 'posted') {
-            throw new DomainException('لا يمكن عكس قيد غير مرحّل');
-        }
+        $entry->assertCanReverse();
 
         $lines = $entry->lines->map(fn($line) => [
             'account_id'  => $line->account_id,
-            'debit'       => $line->credit,  // نعكس المدين والدائن
-            'credit'      => $line->debit,
+            'debit'       => (float)$line->credit,
+            'credit'      => (float)$line->debit,
             'description' => "عكس: {$line->description}",
         ])->toArray();
 
@@ -81,8 +81,8 @@ class PostingService
 
     private function assertBalanced(array $lines): void
     {
-        $totalDebit  = collect($lines)->sum('debit');
-        $totalCredit = collect($lines)->sum('credit');
+        $totalDebit  = collect($lines)->sum(fn($l) => (float)($l['debit']  ?? 0));
+        $totalCredit = collect($lines)->sum(fn($l) => (float)($l['credit'] ?? 0));
 
         if (round($totalDebit, 2) !== round($totalCredit, 2)) {
             throw new DomainException(
@@ -92,6 +92,17 @@ class PostingService
 
         if ($totalDebit == 0) {
             throw new DomainException('القيد لا يحتوي على مبالغ');
+        }
+    }
+
+    private function assertMinTwoLines(array $lines): void
+    {
+        $nonZero = collect($lines)->filter(
+            fn($l) => ((float)($l['debit'] ?? 0)) > 0 || ((float)($l['credit'] ?? 0)) > 0
+        );
+
+        if ($nonZero->count() < 2) {
+            throw new DomainException('القيد يجب أن يحتوي على سطرين على الأقل');
         }
     }
 }

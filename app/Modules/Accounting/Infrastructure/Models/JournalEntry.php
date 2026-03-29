@@ -3,12 +3,19 @@
 namespace App\Modules\Accounting\Infrastructure\Models;
 
 use App\Core\BaseModel;
+use App\Core\Shared\Exceptions\DomainException;
 
 class JournalEntry extends BaseModel
 {
-    protected $fillable = ['tenant_id', 'date', 'description', 'reference', 'posted_at'];
+    protected $fillable = [
+        'tenant_id', 'date', 'description',
+        'reference', 'status', 'posted_at', 'created_by',
+    ];
 
-    protected $casts = ['date' => 'date', 'posted_at' => 'datetime'];
+    protected $casts = [
+        'date'      => 'date',
+        'posted_at' => 'datetime',
+    ];
 
     public function lines()
     {
@@ -17,13 +24,32 @@ class JournalEntry extends BaseModel
 
     public function isPosted(): bool
     {
-        return !is_null($this->posted_at);
+        return $this->status === 'posted';
     }
 
     public function isBalanced(): bool
     {
         $debit  = $this->lines->sum('debit');
         $credit = $this->lines->sum('credit');
-        return round($debit, 2) === round($credit, 2);
+        return round((float)$debit, 2) === round((float)$credit, 2);
+    }
+
+    public function assertCanReverse(): void
+    {
+        if (!$this->isPosted()) {
+            throw new DomainException('لا يمكن عكس قيد غير مرحّل');
+        }
+    }
+
+    // ── Scopes ────────────────────────────────────────────
+
+    public function scopePosted($query)
+    {
+        return $query->where('status', 'posted');
+    }
+
+    public function scopeForPeriod($query, string $from, string $to)
+    {
+        return $query->whereBetween('date', [$from, $to]);
     }
 }

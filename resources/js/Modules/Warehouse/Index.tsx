@@ -1,7 +1,7 @@
 import AppLayout from '@/Core/Layouts/AppLayout';
 import Flash from '@/Core/Components/Flash';
 import { Head, Link, router } from '@inertiajs/react';
-import { Plus, Pencil, Trash2, Warehouse } from 'lucide-react';
+import { Plus, Pencil, Trash2, Warehouse, Eye } from 'lucide-react';
 
 interface WarehouseItem {
     id: number; name: string; city: string;
@@ -35,6 +35,9 @@ export default function WarehouseIndex({ warehouses }: { warehouses: { data: War
                             <p className="text-slate-400 text-sm mt-1">{w.city || 'غير محدد'}</p>
                             <p className="text-slate-500 text-xs mt-2">{w.locations_count} موقع</p>
                             <div className="flex items-center gap-2 mt-4 pt-4 border-t border-slate-800">
+                                <Link href={`/warehouses/${w.id}`} className="flex items-center gap-1 text-slate-400 hover:text-slate-200 text-xs">
+                                    <Eye size={13} /> عرض
+                                </Link>
                                 <Link href={`/warehouses/${w.id}/edit`} className="flex items-center gap-1 text-slate-400 hover:text-blue-400 text-xs">
                                     <Pencil size={13} /> تعديل
                                 </Link>

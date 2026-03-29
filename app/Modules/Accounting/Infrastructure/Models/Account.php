@@ -65,6 +65,44 @@ class Account extends BaseModel
         return $this->hasMany(JournalLine::class);
     }
 
+    // ── Balance ───────────────────────────────────────────
+
+    /**
+     * رصيد الحساب من القيود المرحّلة
+     */
+    public function getBalance(string $from = null, string $to = null): float
+    {
+        $query = $this->journalLines()
+            ->whereHas('entry', fn($q) => $q->where('status', 'posted')
+                ->when($from, fn($q) => $q->where('date', '>=', $from))
+                ->when($to,   fn($q) => $q->where('date', '<=', $to))
+            );
+
+        $debit  = (float) $query->sum('debit');
+        $credit = (float) $query->sum('credit');
+
+        return $this->getSignedBalance($debit, $credit);
+    }
+
+    /**
+     * رصيد الحساب وكل أبنائه (للحسابات التجميعية)
+     */
+    public function getTreeBalance(string $from = null, string $to = null): float
+    {
+        $accountIds = $this->descendants()->pluck('id')->push($this->id);
+
+        $query = JournalLine::whereIn('account_id', $accountIds)
+            ->whereHas('entry', fn($q) => $q->where('status', 'posted')
+                ->when($from, fn($q) => $q->where('date', '>=', $from))
+                ->when($to,   fn($q) => $q->where('date', '<=', $to))
+            );
+
+        $debit  = (float) $query->sum('debit');
+        $credit = (float) $query->sum('credit');
+
+        return $this->getSignedBalance($debit, $credit);
+    }
+
     // ── Scopes ────────────────────────────────────────────
 
     public function scopePostable($query)

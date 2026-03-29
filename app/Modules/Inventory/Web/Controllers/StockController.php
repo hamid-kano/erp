@@ -55,10 +55,11 @@ class StockController extends Controller
     {
         $warehouses = Warehouse::all(['id', 'name']);
 
-        $lowStock = Product::where('is_active', true)
+        $lowStock = Product::active()
+            ->withStock()
             ->with('unit')
             ->get()
-            ->filter(fn ($p) => $p->stock <= $p->reorder_point && $p->reorder_point > 0)
+            ->filter(fn ($p) => $p->isLowStock())
             ->values();
 
         return Inertia::render('Inventory/Stock/Levels', [
