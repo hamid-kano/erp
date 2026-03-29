@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('tenant_id')->index();
+            $table->string('tenant_id')->index();
             $table->decimal('amount', 15, 2);
             $table->enum('method', ['cash', 'bank', 'cheque', 'other'])->default('cash');
             $table->enum('direction', ['in', 'out']);

@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('sales_orders', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('tenant_id')->index();
+            $table->string('tenant_id')->index();
             $table->unsignedBigInteger('customer_id');
             $table->unsignedBigInteger('warehouse_id');
             $table->string('number')->nullable();
@@ -40,7 +40,7 @@ return new class extends Migration
 
         Schema::create('invoices', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('tenant_id')->index();
+            $table->string('tenant_id')->index();
             $table->unsignedBigInteger('customer_id');
             $table->unsignedBigInteger('order_id')->nullable();
             $table->string('number')->nullable();

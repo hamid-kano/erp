@@ -25,7 +25,7 @@ class CreateSalesOrder
                 'tenant_id'    => $tenantId,
                 'customer_id'  => $data['customer_id'],
                 'warehouse_id' => $data['warehouse_id'],
-                'number'       => DocumentSequence::next('SO', $tenantId),
+                'number'       => DocumentSequence::next('SO'),
                 'date'         => $data['date'],
                 'notes'        => $data['notes'] ?? null,
                 'status'       => 'draft',

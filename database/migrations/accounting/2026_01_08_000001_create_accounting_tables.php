@@ -19,7 +19,7 @@ return new class extends Migration
 
         Schema::create('accounts', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('tenant_id')->index();
+            $table->string('tenant_id')->index();
             $table->unsignedBigInteger('template_id')->nullable();
             $table->unsignedBigInteger('parent_id')->nullable();
             $table->string('code');
@@ -34,7 +34,7 @@ return new class extends Migration
 
         Schema::create('journal_entries', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('tenant_id')->index();
+            $table->string('tenant_id')->index();
             $table->date('date');
             $table->string('description')->nullable();
             $table->string('reference')->nullable();

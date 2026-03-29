@@ -10,8 +10,18 @@ class TenantScope implements Scope
 {
     public function apply(Builder $builder, Model $model): void
     {
-        if ($tenantId = app(TenantManager::class)->getId()) {
-            $builder->where($model->getTable().'.tenant_id', $tenantId);
+        $manager = app(TenantManager::class);
+
+        // Dedicated tenant = DB منفصلة = لا نحتاج tenant_id filter
+        if ($manager->isDedicated()) {
+            return;
+        }
+
+        // Shared tenant = نفلتر بـ tenant_id
+        $tenantId = $manager->getId();
+
+        if ($tenantId) {
+            $builder->where($model->getTable() . '.tenant_id', $tenantId);
         }
     }
 }

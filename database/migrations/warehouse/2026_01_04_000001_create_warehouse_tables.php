@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('warehouses', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('tenant_id')->index();
+            $table->string('tenant_id')->index();
             $table->string('name');
             $table->string('city')->nullable();
             $table->boolean('is_active')->default(true);

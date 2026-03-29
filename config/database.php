@@ -99,6 +99,26 @@ return [
             'sslmode' => env('DB_SSLMODE', 'prefer'),
         ],
 
+        /*
+        |------------------------------------------------------------------
+        | Tenant Template Connection (للـ Dedicated Tenants)
+        | stancl/tenancy يستخدم هذا كـ template لإنشاء tenant connections
+        |------------------------------------------------------------------
+        */
+        'tenant_template' => [
+            'driver'    => 'mysql',
+            'host'      => env('DB_HOST', '127.0.0.1'),
+            'port'      => env('DB_PORT', '3306'),
+            'database'  => env('DB_DATABASE', 'erp'),
+            'username'  => env('DB_USERNAME', 'root'),
+            'password'  => env('DB_PASSWORD', ''),
+            'charset'   => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix'    => '',
+            'strict'    => true,
+            'engine'    => null,
+        ],
+
         'sqlsrv' => [
             'driver' => 'sqlsrv',
             'url' => env('DB_URL'),

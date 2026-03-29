@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('purchase_orders', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('tenant_id')->index();
+            $table->string('tenant_id')->index();
             $table->unsignedBigInteger('supplier_id');
             $table->unsignedBigInteger('warehouse_id');
             $table->string('number')->nullable();

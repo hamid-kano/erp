@@ -2,6 +2,7 @@
 
 namespace App\Core\AuditLog;
 
+use App\Core\Tenancy\TenantManager;
 use Illuminate\Database\Eloquent\Model;
 
 class AuditLog extends Model
@@ -16,7 +17,7 @@ class AuditLog extends Model
     public static function record(string $action, Model $model, array $old = [], array $new = []): void
     {
         static::create([
-            'tenant_id'  => $model->tenant_id ?? null,
+            'tenant_id'  => app(TenantManager::class)->getId(),
             'user_id'    => auth()->id(),
             'action'     => $action,
             'model_type' => get_class($model),

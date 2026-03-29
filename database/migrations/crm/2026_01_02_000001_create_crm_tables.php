@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('customers', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('tenant_id')->index();
+            $table->string('tenant_id')->index();
             $table->string('name');
             $table->string('phone')->nullable();
             $table->string('email')->nullable();
@@ -26,7 +26,7 @@ return new class extends Migration
 
         Schema::create('suppliers', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('tenant_id')->index();
+            $table->string('tenant_id')->index();
             $table->string('name');
             $table->string('phone')->nullable();
             $table->string('email')->nullable();

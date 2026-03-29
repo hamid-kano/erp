@@ -5,7 +5,7 @@ use Inertia\Inertia;
 
 require __DIR__.'/auth.php';
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', \App\Core\Tenancy\Middleware\InitializeTenant::class])->group(function () {
     Route::get('/', [\App\Modules\Analytics\Web\Controllers\DashboardController::class, 'index'])->name('dashboard');
 
     require __DIR__.'/modules/crm.php';

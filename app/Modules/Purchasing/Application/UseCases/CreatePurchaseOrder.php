@@ -20,7 +20,7 @@ class CreatePurchaseOrder
                 'tenant_id'    => $tenantId,
                 'supplier_id'  => $data['supplier_id'],
                 'warehouse_id' => $data['warehouse_id'],
-                'number'       => DocumentSequence::next('PO', $tenantId),
+                'number'       => DocumentSequence::next('PO'),
                 'date'         => $data['date'],
                 'notes'        => $data['notes'] ?? null,
                 'status'       => 'draft',

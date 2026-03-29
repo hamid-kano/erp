@@ -9,11 +9,21 @@ trait BelongsToTenant
 {
     public static function bootBelongsToTenant(): void
     {
+        // نطبق الـ scope فقط على الـ Shared tenants
+        // الـ Dedicated tenants لديهم DB منفصلة = عزل تلقائي
         static::addGlobalScope(new TenantScope);
 
         static::creating(function ($model) {
-            if (empty($model->tenant_id)) {
-                $model->tenant_id = app(TenantManager::class)->getId();
+            $manager = app(TenantManager::class);
+
+            // لو Dedicated tenant = لا نحتاج tenant_id
+            if ($manager->isDedicated()) {
+                return;
+            }
+
+            // Shared tenant = نضيف tenant_id تلقائياً
+            if (empty($model->tenant_id) && $manager->getId()) {
+                $model->tenant_id = $manager->getId();
             }
         });
     }

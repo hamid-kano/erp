@@ -9,14 +9,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->unsignedBigInteger('tenant_id')->nullable()->after('id')->index();
+            $table->foreign('tenant_id')->references('id')->on('tenants')->onDelete('set null');
         });
     }
 
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('tenant_id');
+            $table->dropForeign(['tenant_id']);
         });
     }
 };

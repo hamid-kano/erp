@@ -10,14 +10,13 @@ return new class extends Migration
     {
         Schema::create('document_sequences', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('tenant_id')->index();
+            $table->string('tenant_id')->index();
             $table->string('module');
-            $table->string('prefix', 10);
+            $table->string('prefix');
             $table->unsignedInteger('last_number')->default(0);
             $table->unsignedSmallInteger('year');
-            $table->timestamps();
-
             $table->unique(['tenant_id', 'module', 'year']);
+            $table->timestamps();
         });
     }
 

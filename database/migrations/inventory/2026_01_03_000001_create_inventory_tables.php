@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('tenant_id')->index();
+            $table->string('tenant_id')->index();
             $table->unsignedBigInteger('parent_id')->nullable();
             $table->string('name');
             $table->timestamps();
@@ -19,7 +19,7 @@ return new class extends Migration
 
         Schema::create('units', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('tenant_id')->index();
+            $table->string('tenant_id')->index();
             $table->string('name');
             $table->string('symbol', 10);
             $table->timestamps();
@@ -27,7 +27,7 @@ return new class extends Migration
 
         Schema::create('products', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('tenant_id')->index();
+            $table->string('tenant_id')->index();
             $table->unsignedBigInteger('category_id')->nullable();
             $table->unsignedBigInteger('unit_id')->nullable();
             $table->string('name');
@@ -46,7 +46,7 @@ return new class extends Migration
 
         Schema::create('stock_movements', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('tenant_id')->index();
+            $table->string('tenant_id')->index();
             $table->unsignedBigInteger('product_id');
             $table->unsignedBigInteger('warehouse_id');
             $table->decimal('quantity', 15, 3);
@@ -63,7 +63,7 @@ return new class extends Migration
 
         Schema::create('stock_reservations', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('tenant_id')->index();
+            $table->string('tenant_id')->index();
             $table->unsignedBigInteger('product_id');
             $table->unsignedBigInteger('warehouse_id');
             $table->decimal('quantity', 15, 3);
@@ -77,7 +77,7 @@ return new class extends Migration
 
         Schema::create('cost_layers', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('tenant_id')->index();
+            $table->string('tenant_id')->index();
             $table->unsignedBigInteger('product_id');
             $table->unsignedBigInteger('warehouse_id');
             $table->decimal('remaining_quantity', 15, 3);
@@ -91,7 +91,7 @@ return new class extends Migration
 
         Schema::create('stock_snapshots', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('tenant_id')->index();
+            $table->string('tenant_id')->index();
             $table->unsignedBigInteger('product_id');
             $table->unsignedBigInteger('warehouse_id');
             $table->decimal('quantity', 15, 3)->default(0);
