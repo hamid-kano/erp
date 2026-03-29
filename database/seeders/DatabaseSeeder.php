@@ -11,6 +11,8 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        $this->call(AccountTemplateSeeder::class);
+
         // Shared Tenant (صغير)
         $sharedTenant = Tenant::create([
             'id'              => 'demo-shared',
