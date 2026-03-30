@@ -13,8 +13,16 @@ class AccountRequest extends FormRequest
 
     public function rules(): array
     {
+        $tenantId  = auth()->user()->tenant_id;
+        $accountId = $this->route('account')?->id;
+
         return [
-            'code'                 => ['required', 'string', 'max:20'],
+            'code' => [
+                'required', 'string', 'max:20',
+                \Illuminate\Validation\Rule::unique('accounts', 'code')
+                    ->where('tenant_id', $tenantId)
+                    ->ignore($accountId),
+            ],
             'name'                 => ['required', 'string', 'max:255'],
             'type'                 => ['required', 'in:asset,liability,equity,revenue,expense'],
             'normal_balance'       => ['required', 'in:debit,credit'],

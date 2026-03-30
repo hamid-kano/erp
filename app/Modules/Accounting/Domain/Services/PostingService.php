@@ -50,9 +50,13 @@ class PostingService
                 'exchange_rate' => $exchangeRate,
                 'date'          => $date,
                 'description'   => $data['description'],
-                'reference'     => $data['reference'] ?? null,
-                'status'        => 'draft',
+                'reference'     => $data['reference']   ?? null,
+                'source_type'   => $data['source_type'] ?? null,
+                'source_id'     => $data['source_id']   ?? null,
+                'status'        => 'posted',
+                'posted_at'     => now(),
                 'created_by'    => auth()->id(),
+                'updated_by'    => auth()->id(),
             ]);
 
             foreach ($data['lines'] as $line) {
@@ -61,7 +65,9 @@ class PostingService
 
                 if ($debit === 0.0 && $credit === 0.0) continue;
 
-                $account = Account::findOrFail($line['account_id']);
+                $account = Account::where('id', $line['account_id'])
+                    ->where('tenant_id', $this->tenantManager->getId())
+                    ->firstOrFail();
                 $account->assertCanPost();
 
                 $entry->lines()->create([
@@ -77,12 +83,6 @@ class PostingService
                     $account->update(['is_locked' => true]);
                 }
             }
-
-            $entry->update([
-                'status'    => 'posted',
-                'posted_at' => now(),
-                'updated_by' => auth()->id(),
-            ]);
 
             AuditLog::record('journal_entry.posted', $entry, [], [
                 'number'      => $entry->number,

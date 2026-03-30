@@ -16,9 +16,9 @@ class AccountController extends Controller
     {
         $this->authorize('viewAny', Account::class);
 
-        $accounts = Account::with('parent')
-            ->orderBy('_lft')
-            ->get()
+        $accounts = Account::orderBy('_lft')
+            ->get(['id', 'code', 'name', 'type', 'normal_balance', 'is_postable', 'is_locked', 'is_active', 'depth', 'parent_id'])
+            ->keyBy('id')
             ->map(fn($a) => [
                 'id'             => $a->id,
                 'code'           => $a->code,
@@ -29,8 +29,9 @@ class AccountController extends Controller
                 'is_locked'      => $a->is_locked,
                 'is_active'      => $a->is_active,
                 'depth'          => $a->depth,
-                'parent_code'    => $a->parent?->code,
-            ]);
+                'parent_id'      => $a->parent_id,
+            ])
+            ->values();
 
         $hasAccounts  = $accounts->isNotEmpty();
         $templates    = $hasAccounts ? [] : AccountTemplate::all(['id', 'name', 'description']);

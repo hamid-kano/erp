@@ -10,7 +10,7 @@ class ReportController extends Controller
 {
     public function trialBalance(TrialBalanceReport $report)
     {
-        $this->authorize('viewTrialBalance', \App\Modules\Accounting\Web\Policies\ReportPolicy::class);
+        abort_unless(auth()->user()->hasPermissionTo('accounting.reports.trial_balance'), 403);
 
         $from = request('from', now()->startOfMonth()->toDateString());
         $to   = request('to',   now()->toDateString());

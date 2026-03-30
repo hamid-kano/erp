@@ -67,6 +67,9 @@ return new class extends Migration
             $table->date('date');
             $table->string('description');
             $table->string('reference')->nullable();
+            $table->string('source_type')->nullable();                   // App\Modules\Sales\...\SalesInvoice
+            $table->unsignedBigInteger('source_id')->nullable();         // id الفاتورة أو المدفوعة
+            $table->index(['source_type', 'source_id']);
             $table->enum('status', ['draft', 'posted', 'reversed'])->default('draft');
             $table->timestamp('posted_at')->nullable();
             $table->unsignedBigInteger('created_by')->nullable();

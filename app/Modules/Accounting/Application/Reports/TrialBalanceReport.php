@@ -12,29 +12,27 @@ class TrialBalanceReport
     {
         // ── 1. حركات ما قبل الفترة (لحساب رصيد أول المدة) ──────────
         $openingMovements = JournalLine::select(
-                'account_id',
-                DB::raw('SUM(debit_base) as debit'),
-                DB::raw('SUM(credit_base) as credit')
+                'journal_lines.account_id',
+                DB::raw('SUM(journal_lines.debit_base) as debit'),
+                DB::raw('SUM(journal_lines.credit_base) as credit')
             )
-            ->whereHas('entry', fn($q) => $q
-                ->where('status', 'posted')
-                ->where('date', '<', $from)
-            )
-            ->groupBy('account_id')
+            ->join('journal_entries', 'journal_entries.id', '=', 'journal_lines.entry_id')
+            ->where('journal_entries.status', 'posted')
+            ->where('journal_entries.date', '<', $from)
+            ->groupBy('journal_lines.account_id')
             ->get()
             ->keyBy('account_id');
 
         // ── 2. حركات الفترة ──────────────────────────────────────────
         $periodMovements = JournalLine::select(
-                'account_id',
-                DB::raw('SUM(debit_base) as debit'),
-                DB::raw('SUM(credit_base) as credit')
+                'journal_lines.account_id',
+                DB::raw('SUM(journal_lines.debit_base) as debit'),
+                DB::raw('SUM(journal_lines.credit_base) as credit')
             )
-            ->whereHas('entry', fn($q) => $q
-                ->where('status', 'posted')
-                ->whereBetween('date', [$from, $to])
-            )
-            ->groupBy('account_id')
+            ->join('journal_entries', 'journal_entries.id', '=', 'journal_lines.entry_id')
+            ->where('journal_entries.status', 'posted')
+            ->whereBetween('journal_entries.date', [$from, $to])
+            ->groupBy('journal_lines.account_id')
             ->get()
             ->keyBy('account_id');
 

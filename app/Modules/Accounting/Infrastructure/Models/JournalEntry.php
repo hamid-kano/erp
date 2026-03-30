@@ -11,6 +11,7 @@ class JournalEntry extends BaseModel
     protected $fillable = [
         'tenant_id', 'number', 'currency_id', 'exchange_rate',
         'date', 'description', 'reference',
+        'source_type', 'source_id',
         'status', 'posted_at', 'created_by', 'updated_by',
         'reversed_by', 'reversed_entry_id',
     ];
