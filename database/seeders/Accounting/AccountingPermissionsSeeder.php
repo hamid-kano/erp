@@ -16,6 +16,9 @@ class AccountingPermissionsSeeder extends Seeder
         'accounting.journal.create',
         'accounting.journal.reverse',
         'accounting.reports.trial_balance',
+        'accounting.fiscal_period.view',
+        'accounting.fiscal_period.create',
+        'accounting.fiscal_period.close',
     ];
 
     public function run(): void
@@ -33,6 +36,7 @@ class AccountingPermissionsSeeder extends Seeder
             'accounting.journal.view',
             'accounting.journal.create',
             'accounting.reports.trial_balance',
+            'accounting.fiscal_period.view',
         ]);
 
         // مدير مالي — كل الصلاحيات

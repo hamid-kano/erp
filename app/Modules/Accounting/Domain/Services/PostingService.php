@@ -5,6 +5,7 @@ namespace App\Modules\Accounting\Domain\Services;
 use App\Core\Shared\Exceptions\DomainException;
 use App\Core\Tenancy\TenantManager;
 use App\Modules\Accounting\Infrastructure\Models\Account;
+use App\Modules\Accounting\Infrastructure\Models\FiscalPeriod;
 use App\Modules\Accounting\Infrastructure\Models\JournalEntry;
 use App\Modules\Currency\Domain\Services\CurrencyService;
 use Illuminate\Support\Facades\DB;
@@ -28,6 +29,7 @@ class PostingService
         return DB::transaction(function () use ($data) {
             $this->assertBalanced($data['lines']);
             $this->assertMinTwoLines($data['lines']);
+            $this->assertPeriodIsOpen($data['date']);
 
             $baseCurrencyId = $this->tenantManager->getBaseCurrencyId();
             $currencyId     = $data['currency_id'] ?? $baseCurrencyId;
@@ -117,6 +119,25 @@ class PostingService
 
         if ($totalDebit == 0) {
             throw new DomainException('القيد لا يحتوي على مبالغ');
+        }
+    }
+
+    private function assertPeriodIsOpen(string $date): void
+    {
+        $tenantId = $this->tenantManager->getId();
+
+        // إذا لم تكن هناك فترات معرّفة بعد، نسمح بالترحيل (مرحلة الإعداد)
+        $hasPeriods = FiscalPeriod::where('tenant_id', $tenantId)->exists();
+        if (!$hasPeriods) return;
+
+        $period = FiscalPeriod::findForDate($tenantId, $date);
+
+        if (!$period) {
+            throw new DomainException("لا توجد فترة مالية تغطي تاريخ [{$date}]");
+        }
+
+        if (!$period->isOpen()) {
+            throw new DomainException("الفترة المالية [{$period->name}] مغلقة ولا يمكن الترحيل فيها");
         }
     }
 

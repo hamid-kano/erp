@@ -12,8 +12,10 @@ use App\Modules\Purchasing\Application\Listeners\HandleGoodsReceived;
 use App\Modules\Sales\Domain\Events\InvoiceIssued;
 use App\Modules\Sales\Application\Listeners\HandleInvoiceIssued;
 use App\Modules\Accounting\Infrastructure\Models\Account;
+use App\Modules\Accounting\Infrastructure\Models\FiscalPeriod;
 use App\Modules\Accounting\Infrastructure\Models\JournalEntry;
 use App\Modules\Accounting\Web\Policies\AccountPolicy;
+use App\Modules\Accounting\Web\Policies\FiscalPeriodPolicy;
 use App\Modules\Accounting\Web\Policies\JournalEntryPolicy;
 use App\Modules\Accounting\Web\Policies\ReportPolicy;
 use Illuminate\Support\Facades\Auth;
@@ -35,9 +37,10 @@ class AppServiceProvider extends ServiceProvider
 
     private function registerPolicies(): void
     {
-        Gate::policy(Account::class,      AccountPolicy::class);
-        Gate::policy(JournalEntry::class, JournalEntryPolicy::class);
-        Gate::define('viewTrialBalance',  [ReportPolicy::class, 'viewTrialBalance']);
+        Gate::policy(Account::class,       AccountPolicy::class);
+        Gate::policy(JournalEntry::class,  JournalEntryPolicy::class);
+        Gate::policy(FiscalPeriod::class,  FiscalPeriodPolicy::class);
+        Gate::define('viewTrialBalance',   [ReportPolicy::class, 'viewTrialBalance']);
     }
 
     private function registerEvents(): void

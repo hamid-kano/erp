@@ -76,6 +76,21 @@ return new class extends Migration
             $table->index(['tenant_id', 'status']);
         });
 
+        Schema::create('fiscal_periods', function (Blueprint $table) {
+            $table->id();
+            $table->string('tenant_id')->index();
+            $table->string('name');                                      // مثال: 2025-Q1
+            $table->date('start_date');
+            $table->date('end_date');
+            $table->enum('status', ['open', 'closed'])->default('open');
+            $table->timestamp('closed_at')->nullable();
+            $table->unsignedBigInteger('closed_by')->nullable();
+            $table->timestamps();
+
+            $table->index(['tenant_id', 'status']);
+            $table->index(['tenant_id', 'start_date', 'end_date']);
+        });
+
         Schema::create('journal_lines', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('entry_id');
@@ -95,6 +110,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('journal_lines');
+        Schema::dropIfExists('fiscal_periods');
         Schema::dropIfExists('journal_entries');
         Schema::dropIfExists('accounts');
         Schema::dropIfExists('account_template_items');
