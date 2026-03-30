@@ -9,8 +9,8 @@ export default function Register() {
     const { t } = useTranslation();
     useApplySettings();
 
-    const [showPassword, setShowPassword]   = useState(false);
-    const [showConfirm,  setShowConfirm]    = useState(false);
+    const [showPassword, setShowPassword]  = useState(false);
+    const [showConfirm,  setShowConfirm]   = useState(false);
 
     const { data, setData, post, processing, errors, reset } = useForm({
         name: '', email: '', password: '', password_confirmation: '',
@@ -23,19 +23,19 @@ export default function Register() {
 
     return (
         <>
-            <Head title={t('auth.login')} />
-            <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'var(--color-bg)' }}>
-                <div className="w-full max-w-md rounded-2xl border shadow-sm overflow-hidden"
-                    style={{ background: 'var(--color-surface)', borderColor: 'var(--color-border)' }}>
+            <Head title="إنشاء حساب" />
+            <div className="min-h-screen flex items-center justify-center p-4 bg-(--color-bg)">
+                <div className="w-full max-w-md rounded-2xl border border-(--color-border) shadow-sm overflow-hidden bg-(--color-surface)">
 
                     {/* Header */}
-                    <div className="px-8 pt-8 pb-6 border-b text-center" style={{ borderColor: 'var(--color-border)' }}>
-                        <div className="inline-flex items-center gap-2 mb-4">
-                            <div className="w-9 h-9 rounded-xl grid place-items-center text-white font-bold text-lg"
-                                style={{ background: 'var(--color-primary)' }}>✦</div>
-                            <span className="text-lg font-bold" style={{ color: 'var(--color-text-strong)' }}>ERP System</span>
-                        </div>
-                        <h1 className="text-xl font-bold" style={{ color: 'var(--color-text-strong)' }}>إنشاء حساب</h1>
+                    <div className="px-8 pt-8 pb-6 border-b border-(--color-border) text-center">
+                        <Link href="/" className="inline-flex items-center gap-2 mb-4">
+                            <div className="w-9 h-9 rounded-xl grid place-items-center text-white font-bold text-lg bg-(--color-primary)">
+                                ✦
+                            </div>
+                            <span className="text-lg font-bold text-(--color-text-strong)">ERP System</span>
+                        </Link>
+                        <h1 className="text-xl font-bold text-(--color-text-strong)">إنشاء حساب</h1>
                     </div>
 
                     {/* Form */}
@@ -44,7 +44,6 @@ export default function Register() {
                             <InputField
                                 label={t('crm.name')}
                                 icon={User}
-                                type="text"
                                 value={data.name}
                                 onChange={e => setData('name', e.target.value)}
                                 error={errors.name}
@@ -70,8 +69,8 @@ export default function Register() {
                                     error={errors.password}
                                 />
                                 <button type="button" onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute top-8"
-                                    style={{ insetInlineEnd: '12px', color: 'var(--color-text-muted)' }}>
+                                    className="absolute top-8 text-(--color-text-muted)"
+                                    style={{ insetInlineEnd: '12px' }}>
                                     {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
                                 </button>
                             </div>
@@ -86,22 +85,21 @@ export default function Register() {
                                     error={errors.password_confirmation}
                                 />
                                 <button type="button" onClick={() => setShowConfirm(!showConfirm)}
-                                    className="absolute top-8"
-                                    style={{ insetInlineEnd: '12px', color: 'var(--color-text-muted)' }}>
+                                    className="absolute top-8 text-(--color-text-muted)"
+                                    style={{ insetInlineEnd: '12px' }}>
                                     {showConfirm ? <EyeOff size={15} /> : <Eye size={15} />}
                                 </button>
                             </div>
 
                             <button type="submit" disabled={processing}
-                                className="w-full py-2.5 rounded-lg text-sm font-semibold text-white disabled:opacity-60 transition-opacity mt-2"
-                                style={{ background: 'var(--color-primary)' }}>
+                                className="w-full py-2.5 rounded-lg text-sm font-semibold text-white disabled:opacity-60 transition-opacity mt-2 bg-(--color-primary)">
                                 {processing ? t('common.loading') : 'إنشاء الحساب'}
                             </button>
                         </form>
 
-                        <p className="text-center text-sm mt-6" style={{ color: 'var(--color-text-muted)' }}>
+                        <p className="text-center text-sm mt-6 text-(--color-text-muted)">
                             لديك حساب بالفعل؟{' '}
-                            <Link href="/login" className="font-medium" style={{ color: 'var(--color-primary)' }}>
+                            <Link href="/login" className="font-medium text-(--color-primary)">
                                 {t('auth.login')}
                             </Link>
                         </p>

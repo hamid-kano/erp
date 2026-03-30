@@ -4,21 +4,21 @@ import { ReactNode } from 'react';
 type Variant = 'default' | 'primary' | 'success' | 'warning' | 'danger' | 'info';
 
 const variants: Record<Variant, string> = {
-    default: 'bg-slate-700 text-slate-300',
-    primary: 'bg-blue-500/10 text-blue-400',
-    success: 'bg-green-500/10 text-green-400',
-    warning: 'bg-yellow-500/10 text-yellow-400',
-    danger:  'bg-red-500/10 text-red-400',
-    info:    'bg-purple-500/10 text-purple-400',
+    default: 'bg-(--color-surface-2) text-(--color-text)',
+    primary: 'bg-(--color-primary)/10 text-(--color-primary)',
+    success: 'bg-(--color-success)/10 text-(--color-success)',
+    warning: 'bg-(--color-warning)/10 text-(--color-warning)',
+    danger:  'bg-(--color-danger)/10  text-(--color-danger)',
+    info:    'bg-(--color-info)/10    text-(--color-info)',
 };
 
 const dotColors: Record<Variant, string> = {
-    default: 'bg-slate-400',
-    primary: 'bg-blue-400',
-    success: 'bg-green-400',
-    warning: 'bg-yellow-400',
-    danger:  'bg-red-400',
-    info:    'bg-purple-400',
+    default: 'bg-(--color-text-muted)',
+    primary: 'bg-(--color-primary)',
+    success: 'bg-(--color-success)',
+    warning: 'bg-(--color-warning)',
+    danger:  'bg-(--color-danger)',
+    info:    'bg-(--color-info)',
 };
 
 interface Props {
@@ -30,7 +30,7 @@ interface Props {
 
 export default function Badge({ children, variant = 'default', dot = false, className }: Props) {
     return (
-        <span className={cn('inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold', variants[variant], className)}>
+        <span className={cn('inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold', variants[variant], className)}>
             {dot && <span className={cn('w-1.5 h-1.5 rounded-full shrink-0', dotColors[variant])} />}
             {children}
         </span>

@@ -22,25 +22,25 @@ export default function Login({ status, canResetPassword }: { status?: string; c
     return (
         <>
             <Head title={t('auth.login')} />
-            <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'var(--color-bg)' }}>
-                <div className="w-full max-w-md rounded-2xl border shadow-sm overflow-hidden"
-                    style={{ background: 'var(--color-surface)', borderColor: 'var(--color-border)' }}>
+            <div className="min-h-screen flex items-center justify-center p-4 bg-(--color-bg)">
+                <div className="w-full max-w-md rounded-2xl border border-(--color-border) shadow-sm overflow-hidden bg-(--color-surface)">
 
                     {/* Header */}
-                    <div className="px-8 pt-8 pb-6 border-b text-center" style={{ borderColor: 'var(--color-border)' }}>
-                        <div className="inline-flex items-center gap-2 mb-4">
-                            <div className="w-9 h-9 rounded-xl grid place-items-center text-white font-bold text-lg"
-                                style={{ background: 'var(--color-primary)' }}>✦</div>
-                            <span className="text-lg font-bold" style={{ color: 'var(--color-text-strong)' }}>ERP System</span>
-                        </div>
-                        <h1 className="text-xl font-bold" style={{ color: 'var(--color-text-strong)' }}>{t('auth.login')}</h1>
+                    <div className="px-8 pt-8 pb-6 border-b border-(--color-border) text-center">
+                        <Link href="/" className="inline-flex items-center gap-2 mb-4">
+                            <div className="w-9 h-9 rounded-xl grid place-items-center text-white font-bold text-lg bg-(--color-primary)">
+                                ✦
+                            </div>
+                            <span className="text-lg font-bold text-(--color-text-strong)">ERP System</span>
+                        </Link>
+                        <h1 className="text-xl font-bold text-(--color-text-strong)">{t('auth.login')}</h1>
                     </div>
 
                     {/* Form */}
                     <div className="px-8 py-6">
                         {status && (
-                            <div className="mb-4 text-sm px-4 py-3 rounded-lg border"
-                                style={{ background: 'rgba(16,185,129,0.1)', borderColor: 'var(--color-success)', color: 'var(--color-success)' }}>
+                            <div className="mb-4 text-sm px-4 py-3 rounded-lg border border-(--color-success) text-(--color-success)"
+                                style={{ background: 'rgba(16,185,129,0.1)' }}>
                                 {status}
                             </div>
                         )}
@@ -68,8 +68,8 @@ export default function Login({ status, canResetPassword }: { status?: string; c
                                     error={errors.password}
                                 />
                                 <button type="button" onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute top-8 text-xs"
-                                    style={{ insetInlineEnd: '12px', color: 'var(--color-text-muted)' }}>
+                                    className="absolute top-8 text-(--color-text-muted)"
+                                    style={{ insetInlineEnd: '12px' }}>
                                     {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
                                 </button>
                             </div>
@@ -79,18 +79,17 @@ export default function Login({ status, canResetPassword }: { status?: string; c
                                     <input type="checkbox" checked={data.remember}
                                         onChange={e => setData('remember', e.target.checked)}
                                         style={{ accentColor: 'var(--color-primary)' }} />
-                                    <span className="text-sm" style={{ color: 'var(--color-text)' }}>{t('auth.rememberMe')}</span>
+                                    <span className="text-sm text-(--color-text)">{t('auth.rememberMe')}</span>
                                 </label>
                                 {canResetPassword && (
-                                    <Link href="/forgot-password" className="text-sm" style={{ color: 'var(--color-primary)' }}>
+                                    <Link href="/forgot-password" className="text-sm text-(--color-primary)">
                                         {t('auth.forgotPassword')}
                                     </Link>
                                 )}
                             </div>
 
                             <button type="submit" disabled={processing}
-                                className="w-full py-2.5 rounded-lg text-sm font-semibold text-white disabled:opacity-60 transition-opacity"
-                                style={{ background: 'var(--color-primary)' }}>
+                                className="w-full py-2.5 rounded-lg text-sm font-semibold text-white disabled:opacity-60 transition-opacity bg-(--color-primary)">
                                 {processing ? t('common.loading') : t('auth.submit')}
                             </button>
                         </form>

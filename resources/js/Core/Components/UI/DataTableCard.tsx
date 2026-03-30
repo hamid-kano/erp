@@ -22,24 +22,21 @@ export default function DataTableCard<T extends Record<string, any>>({
     title, subtitle, columns, data, footer, action, className, emptyText = 'لا توجد بيانات',
 }: Props<T>) {
     return (
-        <div className={cn('rounded-xl border overflow-hidden', className)}
-            style={{ background: 'var(--color-surface)', borderColor: 'var(--color-border)' }}>
-            <div className="flex items-center justify-between px-4 py-3 border-b"
-                style={{ borderColor: 'var(--color-border)' }}>
+        <div className={cn('bg-(--color-surface) border border-(--color-border) rounded-xl overflow-hidden', className)}>
+            <div className="flex items-center justify-between px-4 py-3 border-b border-(--color-border)">
                 <div>
-                    <h2 className="text-sm font-semibold" style={{ color: 'var(--color-text-strong)' }}>{title}</h2>
-                    {subtitle && <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-muted)' }}>{subtitle}</p>}
+                    <h2 className="text-[14px] font-semibold text-(--color-text-strong)">{title}</h2>
+                    {subtitle && <p className="text-[12px] text-(--color-text-muted) mt-0.5">{subtitle}</p>}
                 </div>
                 {action && <div>{action}</div>}
             </div>
 
             <div className="overflow-x-auto">
-                <table className="w-full text-sm">
+                <table className="w-full border-collapse">
                     <thead>
-                        <tr style={{ borderBottom: '1px solid var(--color-border)' }}>
+                        <tr className="border-b border-(--color-border)">
                             {columns.map((col, i) => (
-                                <th key={i} className="text-right px-4 py-2.5 text-xs font-semibold uppercase tracking-wider"
-                                    style={{ color: 'var(--color-text-muted)' }}>
+                                <th key={i} className="text-right px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-(--color-text-muted)">
                                     {col.label}
                                 </th>
                             ))}
@@ -48,18 +45,14 @@ export default function DataTableCard<T extends Record<string, any>>({
                     <tbody>
                         {data.length === 0 ? (
                             <tr>
-                                <td colSpan={columns.length} className="px-4 py-8 text-center text-sm"
-                                    style={{ color: 'var(--color-text-muted)' }}>
+                                <td colSpan={columns.length} className="px-4 py-8 text-center text-[13px] text-(--color-text-muted)">
                                     {emptyText}
                                 </td>
                             </tr>
                         ) : data.map((row, i) => (
-                            <tr key={i} className="transition-colors"
-                                style={{ borderBottom: '1px solid var(--color-border)' }}
-                                onMouseEnter={e => (e.currentTarget.style.background = 'var(--color-surface-2)')}
-                                onMouseLeave={e => (e.currentTarget.style.background = '')}>
+                            <tr key={i} className="border-b border-(--color-border) hover:bg-(--color-surface-2) transition-colors">
                                 {columns.map((col, j) => (
-                                    <td key={j} className="px-4 py-3" style={{ color: 'var(--color-text)' }}>
+                                    <td key={j} className="px-4 py-3 text-[13px] text-(--color-text)">
                                         {col.render ? col.render(row[col.key as string], row) : (row[col.key as string] ?? '—')}
                                     </td>
                                 ))}
@@ -70,8 +63,7 @@ export default function DataTableCard<T extends Record<string, any>>({
             </div>
 
             {footer && (
-                <div className="px-4 py-3 border-t text-xs"
-                    style={{ borderColor: 'var(--color-border)', background: 'var(--color-surface-2)', color: 'var(--color-text-muted)' }}>
+                <div className="px-4 py-3 border-t border-(--color-border) bg-(--color-surface-2) text-[12px] text-(--color-text-muted)">
                     {footer}
                 </div>
             )}

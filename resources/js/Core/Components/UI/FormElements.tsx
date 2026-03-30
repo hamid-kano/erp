@@ -44,14 +44,15 @@ export const TextInput = forwardRef<
 
     return (
         <input {...props} type={type} ref={localRef}
-            className={cn('w-full py-2.5 text-sm rounded-lg border outline-none transition-all', className)}
-            style={{
-                paddingInlineStart: '0.75rem',
-                paddingInlineEnd:   '0.75rem',
-                background:   'var(--color-surface-2)',
-                borderColor:  error ? 'var(--color-danger)' : 'var(--color-border)',
-                color:        'var(--color-text-strong)',
-            }}
+            className={cn(
+                'w-full py-2.5 text-[13px] rounded-lg outline-none transition-all',
+                'bg-(--color-surface-2) text-(--color-text-strong)',
+                error
+                    ? 'border border-(--color-danger)'
+                    : 'border border-(--color-border) focus:border-(--color-primary)',
+                className,
+            )}
+            style={{ paddingInlineStart: '0.75rem', paddingInlineEnd: '0.75rem' }}
         />
     );
 });
