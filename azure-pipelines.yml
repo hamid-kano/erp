@@ -15,7 +15,7 @@ variables:
   - name: SSH_PORT
     value: $(HOSTINGER_PORT)
   - name: DEPLOY_PATH
-    value: /home/$(HOSTINGER_USER)/public_html
+    value: /home/$(HOSTINGER_USER)/domains/syriadevs.site/public_html
 
 steps:
   - task: NodeTool@0
