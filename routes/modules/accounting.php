@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Route;
 Route::resource('accounts', AccountController::class)->only(['index', 'create', 'store', 'edit', 'update']);
 Route::post('accounts/setup-template', [AccountController::class, 'setupFromTemplate'])->name('accounts.setup-template');
 Route::resource('journal-entries', JournalEntryController::class)->only(['index', 'create', 'store', 'show']);
+Route::post('journal-entries/{journalEntry}/reverse', [JournalEntryController::class, 'reverse'])->name('journal-entries.reverse');
 
 // Fiscal Periods
 Route::resource('fiscal-periods', FiscalPeriodController::class)->only(['index', 'store']);

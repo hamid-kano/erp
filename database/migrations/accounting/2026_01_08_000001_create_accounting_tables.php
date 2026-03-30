@@ -67,9 +67,12 @@ return new class extends Migration
             $table->date('date');
             $table->string('description');
             $table->string('reference')->nullable();
-            $table->enum('status', ['draft', 'posted'])->default('draft');
+            $table->enum('status', ['draft', 'posted', 'reversed'])->default('draft');
             $table->timestamp('posted_at')->nullable();
             $table->unsignedBigInteger('created_by')->nullable();
+            $table->unsignedBigInteger('updated_by')->nullable();
+            $table->unsignedBigInteger('reversed_by')->nullable();
+            $table->unsignedBigInteger('reversed_entry_id')->nullable(); // القيد العكسي
             $table->timestamps();
             $table->softDeletes();
 

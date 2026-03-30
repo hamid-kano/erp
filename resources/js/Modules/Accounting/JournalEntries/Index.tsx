@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 interface Entry {
     id: number; number: string; date: string; description: string;
     reference: string; posted_at: string | null; lines_count: number;
+    status: 'draft' | 'posted' | 'reversed';
 }
 
 export default function JournalEntriesIndex({ entries }: { entries: { data: Entry[] } }) {
@@ -19,8 +20,14 @@ export default function JournalEntriesIndex({ entries }: { entries: { data: Entr
         { key: 'description', label: t('accounting.description'), render: (v: string) => <span style={{ color: 'var(--color-text-strong)' }}>{v}</span> },
         { key: 'reference',   label: t('accounting.reference'),   render: (v: string) => v ? <span className="font-mono text-xs">{v}</span> : '—' },
         { key: 'lines_count', label: 'السطور' },
-        { key: 'posted_at',   label: t('common.status'),
-            render: (v: string | null) => <Badge variant={v ? 'success' : 'warning'} dot>{v ? 'مرحّل' : 'مسودة'}</Badge>
+        { key: 'status', label: t('common.status'),
+            render: (v: string) => (
+                v === 'reversed'
+                    ? <Badge variant="danger" dot>معكوس</Badge>
+                    : v === 'posted'
+                        ? <Badge variant="success" dot>مرحّل</Badge>
+                        : <Badge variant="warning" dot>مسودة</Badge>
+            )
         },
         { key: 'id', label: '', render: (_: any, row: Entry) => (
             <Link href={`/journal-entries/${row.id}`} style={{ color: 'var(--color-text-muted)' }}><Eye size={15} /></Link>

@@ -7,6 +7,7 @@ use App\Modules\Accounting\Domain\Services\PostingService;
 use App\Modules\Accounting\Infrastructure\Models\Account;
 use App\Modules\Accounting\Infrastructure\Models\JournalEntry;
 use App\Modules\Accounting\Web\Requests\JournalEntryRequest;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class JournalEntryController extends Controller
@@ -47,7 +48,19 @@ class JournalEntryController extends Controller
         $this->authorize('view', $journalEntry);
 
         return Inertia::render('Accounting/JournalEntries/Show', [
-            'entry' => $journalEntry->load('lines.account'),
+            'entry' => $journalEntry->load('lines.account', 'reversedEntry'),
         ]);
+    }
+
+    public function reverse(Request $request, JournalEntry $journalEntry)
+    {
+        $this->authorize('reverse', $journalEntry);
+
+        $request->validate(['reason' => ['required', 'string', 'max:255']]);
+
+        $this->postingService->reverse($journalEntry, $request->reason);
+
+        return redirect()->route('journal-entries.show', $journalEntry)
+            ->with('success', 'تم عكس القيد بنجاح');
     }
 }

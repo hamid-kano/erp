@@ -2,6 +2,7 @@
 
 namespace App\Modules\Accounting\Domain\Services;
 
+use App\Core\AuditLog\AuditLog;
 use App\Core\DocumentSequence\DocumentSequence;
 use App\Core\Shared\Exceptions\DomainException;
 use App\Core\Tenancy\TenantManager;
@@ -80,6 +81,14 @@ class PostingService
             $entry->update([
                 'status'    => 'posted',
                 'posted_at' => now(),
+                'updated_by' => auth()->id(),
+            ]);
+
+            AuditLog::record('journal_entry.posted', $entry, [], [
+                'number'      => $entry->number,
+                'date'        => $entry->date,
+                'description' => $entry->description,
+                'lines_count' => $entry->lines->count(),
             ]);
 
             return $entry->load('lines.account');
@@ -97,13 +106,29 @@ class PostingService
             'description' => "عكس: {$line->description}",
         ])->toArray();
 
-        return $this->post([
+        $reversalEntry = $this->post([
             'date'        => now()->toDateString(),
-            'description' => "عكس قيد #{$entry->id}: {$reason}",
-            'reference'   => "REV-{$entry->id}",
+            'description' => "عكس قيد #{$entry->number}: {$reason}",
+            'reference'   => "REV-{$entry->number}",
             'currency_id' => $entry->currency_id,
             'lines'       => $lines,
         ]);
+
+        // تحديث القيد الأصلي إلى reversed
+        $entry->update([
+            'status'           => 'reversed',
+            'reversed_by'      => auth()->id(),
+            'reversed_entry_id'=> $reversalEntry->id,
+            'updated_by'       => auth()->id(),
+        ]);
+
+        AuditLog::record('journal_entry.reversed', $entry, ['status' => 'posted'], [
+            'status'            => 'reversed',
+            'reversal_entry_id' => $reversalEntry->id,
+            'reason'            => $reason,
+        ]);
+
+        return $reversalEntry;
     }
 
     // ── Private ───────────────────────────────────────────
