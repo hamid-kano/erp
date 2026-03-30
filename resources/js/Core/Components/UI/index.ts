@@ -5,3 +5,4 @@ export { default as PageHeader }    from './PageHeader';
 export { default as Pagination }    from './Pagination';
 export { default as StatCard }      from './StatCard';
 export { default as ActivityFeed }  from './ActivityFeed';
+export { default as InputField }    from './InputField';

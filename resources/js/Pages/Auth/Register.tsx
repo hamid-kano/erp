@@ -1,22 +1,24 @@
 import { useForm, Head, Link } from '@inertiajs/react';
 import { FormEvent, useState } from 'react';
-import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { User, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useApplySettings } from '@/Core/hooks/useApplySettings';
 import InputField from '@/Core/Components/UI/InputField';
 
-export default function Login({ status, canResetPassword }: { status?: string; canResetPassword?: boolean }) {
+export default function Register() {
     const { t } = useTranslation();
     useApplySettings();
 
-    const [showPassword, setShowPassword] = useState(false);
+    const [showPassword, setShowPassword]   = useState(false);
+    const [showConfirm,  setShowConfirm]    = useState(false);
+
     const { data, setData, post, processing, errors, reset } = useForm({
-        email: '', password: '', remember: false,
+        name: '', email: '', password: '', password_confirmation: '',
     });
 
     const submit = (e: FormEvent) => {
         e.preventDefault();
-        post('/login', { onFinish: () => reset('password') });
+        post('/register', { onFinish: () => reset('password', 'password_confirmation') });
     };
 
     return (
@@ -33,19 +35,21 @@ export default function Login({ status, canResetPassword }: { status?: string; c
                                 style={{ background: 'var(--color-primary)' }}>✦</div>
                             <span className="text-lg font-bold" style={{ color: 'var(--color-text-strong)' }}>ERP System</span>
                         </div>
-                        <h1 className="text-xl font-bold" style={{ color: 'var(--color-text-strong)' }}>{t('auth.login')}</h1>
+                        <h1 className="text-xl font-bold" style={{ color: 'var(--color-text-strong)' }}>إنشاء حساب</h1>
                     </div>
 
                     {/* Form */}
                     <div className="px-8 py-6">
-                        {status && (
-                            <div className="mb-4 text-sm px-4 py-3 rounded-lg border"
-                                style={{ background: 'rgba(16,185,129,0.1)', borderColor: 'var(--color-success)', color: 'var(--color-success)' }}>
-                                {status}
-                            </div>
-                        )}
-
                         <form onSubmit={submit} className="space-y-4">
+                            <InputField
+                                label={t('crm.name')}
+                                icon={User}
+                                type="text"
+                                value={data.name}
+                                onChange={e => setData('name', e.target.value)}
+                                error={errors.name}
+                                autoFocus
+                            />
                             <InputField
                                 label={t('auth.email')}
                                 icon={Mail}
@@ -54,9 +58,7 @@ export default function Login({ status, canResetPassword }: { status?: string; c
                                 onChange={e => setData('email', e.target.value)}
                                 placeholder="example@company.com"
                                 error={errors.email}
-                                autoFocus
                             />
-
                             <div className="relative">
                                 <InputField
                                     label={t('auth.password')}
@@ -68,32 +70,41 @@ export default function Login({ status, canResetPassword }: { status?: string; c
                                     error={errors.password}
                                 />
                                 <button type="button" onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute top-8 text-xs"
+                                    className="absolute top-8"
                                     style={{ insetInlineEnd: '12px', color: 'var(--color-text-muted)' }}>
                                     {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
                                 </button>
                             </div>
-
-                            <div className="flex items-center justify-between">
-                                <label className="flex items-center gap-2 cursor-pointer">
-                                    <input type="checkbox" checked={data.remember}
-                                        onChange={e => setData('remember', e.target.checked)}
-                                        style={{ accentColor: 'var(--color-primary)' }} />
-                                    <span className="text-sm" style={{ color: 'var(--color-text)' }}>{t('auth.rememberMe')}</span>
-                                </label>
-                                {canResetPassword && (
-                                    <Link href="/forgot-password" className="text-sm" style={{ color: 'var(--color-primary)' }}>
-                                        {t('auth.forgotPassword')}
-                                    </Link>
-                                )}
+                            <div className="relative">
+                                <InputField
+                                    label="تأكيد كلمة المرور"
+                                    icon={Lock}
+                                    type={showConfirm ? 'text' : 'password'}
+                                    value={data.password_confirmation}
+                                    onChange={e => setData('password_confirmation', e.target.value)}
+                                    placeholder="••••••••"
+                                    error={errors.password_confirmation}
+                                />
+                                <button type="button" onClick={() => setShowConfirm(!showConfirm)}
+                                    className="absolute top-8"
+                                    style={{ insetInlineEnd: '12px', color: 'var(--color-text-muted)' }}>
+                                    {showConfirm ? <EyeOff size={15} /> : <Eye size={15} />}
+                                </button>
                             </div>
 
                             <button type="submit" disabled={processing}
-                                className="w-full py-2.5 rounded-lg text-sm font-semibold text-white disabled:opacity-60 transition-opacity"
+                                className="w-full py-2.5 rounded-lg text-sm font-semibold text-white disabled:opacity-60 transition-opacity mt-2"
                                 style={{ background: 'var(--color-primary)' }}>
-                                {processing ? t('common.loading') : t('auth.submit')}
+                                {processing ? t('common.loading') : 'إنشاء الحساب'}
                             </button>
                         </form>
+
+                        <p className="text-center text-sm mt-6" style={{ color: 'var(--color-text-muted)' }}>
+                            لديك حساب بالفعل؟{' '}
+                            <Link href="/login" className="font-medium" style={{ color: 'var(--color-primary)' }}>
+                                {t('auth.login')}
+                            </Link>
+                        </p>
                     </div>
                 </div>
             </div>
