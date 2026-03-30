@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Tenant;
 use App\Models\User;
+use Database\Seeders\Accounting\AccountingPermissionsSeeder;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -13,11 +14,10 @@ class DatabaseSeeder extends Seeder
     {
         $this->call(AccountTemplateSeeder::class);
         $this->call(CurrencySeeder::class);
+        $this->call(AccountingPermissionsSeeder::class);
 
-        // جلب عملة الريال السعودي
         $sar = \App\Modules\Currency\Infrastructure\Models\Currency::where('code', 'SAR')->first();
 
-        // Shared Tenant (صغير)
         $sharedTenant = Tenant::create([
             'id'               => 'demo-shared',
             'name'             => 'شركة تجريبية (مشتركة)',
@@ -26,12 +26,13 @@ class DatabaseSeeder extends Seeder
             'base_currency_id' => $sar?->id,
         ]);
 
-        User::create([
+        $admin = User::create([
             'tenant_id' => $sharedTenant->id,
             'name'      => 'مدير النظام',
             'email'     => 'admin@erp.test',
             'password'  => Hash::make('password'),
         ]);
+        $admin->assignRole('admin');
 
         // Dedicated Tenant (كبير) - قاعدة بيانات منفصلة
         // $dedicatedTenant = Tenant::create([

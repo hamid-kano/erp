@@ -11,8 +11,14 @@ use App\Modules\Purchasing\Domain\Events\GoodsReceived;
 use App\Modules\Purchasing\Application\Listeners\HandleGoodsReceived;
 use App\Modules\Sales\Domain\Events\InvoiceIssued;
 use App\Modules\Sales\Application\Listeners\HandleInvoiceIssued;
+use App\Modules\Accounting\Infrastructure\Models\Account;
+use App\Modules\Accounting\Infrastructure\Models\JournalEntry;
+use App\Modules\Accounting\Web\Policies\AccountPolicy;
+use App\Modules\Accounting\Web\Policies\JournalEntryPolicy;
+use App\Modules\Accounting\Web\Policies\ReportPolicy;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Inertia\Inertia;
 
@@ -22,8 +28,16 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        $this->registerPolicies();
         $this->registerEvents();
         $this->shareInertiaData();
+    }
+
+    private function registerPolicies(): void
+    {
+        Gate::policy(Account::class,      AccountPolicy::class);
+        Gate::policy(JournalEntry::class, JournalEntryPolicy::class);
+        Gate::define('viewTrialBalance',  [ReportPolicy::class, 'viewTrialBalance']);
     }
 
     private function registerEvents(): void

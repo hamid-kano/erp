@@ -15,6 +15,8 @@ class JournalEntryController extends Controller
 
     public function index()
     {
+        $this->authorize('viewAny', JournalEntry::class);
+
         $entries = JournalEntry::withCount('lines')
             ->orderByDesc('date')
             ->paginate(20);
@@ -24,6 +26,8 @@ class JournalEntryController extends Controller
 
     public function create()
     {
+        $this->authorize('create', JournalEntry::class);
+
         return Inertia::render('Accounting/JournalEntries/Form', [
             'accounts' => Account::postable()->orderBy('_lft')->get(['id', 'code', 'name']),
         ]);
@@ -31,6 +35,8 @@ class JournalEntryController extends Controller
 
     public function store(Request $request)
     {
+        $this->authorize('create', JournalEntry::class);
+
         $request->validate([
             'date'               => ['required', 'date'],
             'description'        => ['required', 'string'],
@@ -52,6 +58,8 @@ class JournalEntryController extends Controller
 
     public function show(JournalEntry $journalEntry)
     {
+        $this->authorize('view', $journalEntry);
+
         return Inertia::render('Accounting/JournalEntries/Show', [
             'entry' => $journalEntry->load('lines.account'),
         ]);

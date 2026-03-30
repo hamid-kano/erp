@@ -10,6 +10,8 @@ class ReportController extends Controller
 {
     public function trialBalance(TrialBalanceReport $report)
     {
+        $this->authorize('viewTrialBalance', \App\Modules\Accounting\Web\Policies\ReportPolicy::class);
+
         $from = request('from', now()->startOfMonth()->toDateString());
         $to   = request('to',   now()->toDateString());
 

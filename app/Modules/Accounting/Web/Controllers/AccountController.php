@@ -13,7 +13,8 @@ class AccountController extends Controller
 {
     public function index()
     {
-        // نجلب الشجرة كاملة مرتبة بـ _lft (Nested Set order)
+        $this->authorize('viewAny', Account::class);
+
         $accounts = Account::with('parent')
             ->orderBy('_lft')
             ->get()
@@ -38,6 +39,8 @@ class AccountController extends Controller
 
     public function setupFromTemplate(Request $request, CreateChartOfAccountsFromTemplate $useCase)
     {
+        $this->authorize('setupTemplate', Account::class);
+
         $request->validate(['template_id' => ['required', 'exists:account_templates,id']]);
 
         $tenant = auth()->user()->tenant;
@@ -48,6 +51,8 @@ class AccountController extends Controller
 
     public function create()
     {
+        $this->authorize('create', Account::class);
+
         return Inertia::render('Accounting/Accounts/Form', [
             'parents'    => Account::postable()->orderBy('_lft')->get(['id', 'code', 'name']),
             'types'      => ['asset', 'liability', 'equity', 'revenue', 'expense'],
@@ -58,6 +63,8 @@ class AccountController extends Controller
 
     public function store(Request $request)
     {
+        $this->authorize('create', Account::class);
+
         $data = $request->validate([
             'code'                 => ['required', 'string', 'max:20'],
             'name'                 => ['required', 'string', 'max:255'],
@@ -77,6 +84,8 @@ class AccountController extends Controller
 
     public function edit(Account $account)
     {
+        $this->authorize('update', $account);
+
         return Inertia::render('Accounting/Accounts/Form', [
             'account'    => $account,
             'parents'    => Account::where('id', '!=', $account->id)->orderBy('_lft')->get(['id', 'code', 'name']),
@@ -88,6 +97,8 @@ class AccountController extends Controller
 
     public function update(Request $request, Account $account)
     {
+        $this->authorize('update', $account);
+
         $account->assertCanEdit();
 
         $data = $request->validate([
