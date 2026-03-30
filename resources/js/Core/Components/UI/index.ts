@@ -9,3 +9,4 @@ export { default as InputField }    from './InputField';
 export { default as Modal }         from './Modal';
 export { PrimaryButton, SecondaryButton, DangerButton } from './Buttons';
 export { Checkbox, InputLabel, InputError, TextInput }  from './FormElements';
+export { default as Select }         from './Select';

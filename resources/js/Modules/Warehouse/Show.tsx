@@ -1,6 +1,6 @@
 import AppLayout from '@/Core/Layouts/AppLayout';
 import Flash from '@/Core/Components/Flash';
-import { PageHeader, Badge, DataTableCard, Modal, PrimaryButton, SecondaryButton } from '@/Core/Components/UI';
+import { PageHeader, Badge, DataTableCard, Modal, PrimaryButton, SecondaryButton, InputLabel, InputError, TextInput, Select } from '@/Core/Components/UI';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { ArrowLeftRight, Pencil } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -9,9 +9,6 @@ import { useState } from 'react';
 interface StockItem { id: number; name: string; sku: string; quantity: number; unit: string; }
 interface WareItem  { id: number; name: string; }
 interface WarehouseItem { id: number; name: string; city: string; is_active: boolean; }
-
-const inputCls = 'w-full bg-slate-800 border border-slate-700 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500';
-const labelCls = 'block text-sm text-slate-300 mb-1';
 
 function TransferModal({ warehouseId, stock, warehouses, onClose }: {
     warehouseId: number; stock: StockItem[]; warehouses: WareItem[]; onClose: () => void;
@@ -30,28 +27,28 @@ function TransferModal({ warehouseId, stock, warehouses, onClose }: {
         <Modal show title={t('warehouse.transfer')} onClose={onClose}>
             <form onSubmit={submit} className="space-y-4">
                 <div>
-                    <label className={labelCls}>{t('inventory.items')} *</label>
-                    <select value={data.product_id} onChange={e => setData('product_id', e.target.value)} className={inputCls}>
+                    <InputLabel value={`${t('inventory.items')} *`} />
+                    <Select value={data.product_id} onChange={e => setData('product_id', e.target.value)} error={!!errors.product_id}>
                         <option value="">—</option>
                         {stock.map(s => (
                             <option key={s.id} value={s.id}>{s.name} — {s.quantity} {s.unit}</option>
                         ))}
-                    </select>
-                    {errors.product_id && <p className="text-xs mt-1" style={{color:'var(--color-danger)'}}>{errors.product_id}</p>}
+                    </Select>
+                    <InputError message={errors.product_id} />
                 </div>
                 <div>
-                    <label className={labelCls}>{t('warehouse.to')} *</label>
-                    <select value={data.to_warehouse_id} onChange={e => setData('to_warehouse_id', e.target.value)} className={inputCls}>
+                    <InputLabel value={`${t('warehouse.to')} *`} />
+                    <Select value={data.to_warehouse_id} onChange={e => setData('to_warehouse_id', e.target.value)} error={!!errors.to_warehouse_id}>
                         <option value="">—</option>
                         {warehouses.map(w => <option key={w.id} value={w.id}>{w.name}</option>)}
-                    </select>
-                    {errors.to_warehouse_id && <p className="text-xs mt-1" style={{color:'var(--color-danger)'}}>{errors.to_warehouse_id}</p>}
+                    </Select>
+                    <InputError message={errors.to_warehouse_id} />
                 </div>
                 <div>
-                    <label className={labelCls}>{t('payments.amount')} *</label>
-                    <input type="number" value={data.quantity} min="0.001" step="0.001"
-                        onChange={e => setData('quantity', e.target.value)} className={inputCls} />
-                    {errors.quantity && <p className="text-xs mt-1" style={{color:'var(--color-danger)'}}>{errors.quantity}</p>}
+                    <InputLabel value={`${t('payments.amount')} *`} />
+                    <TextInput type="number" value={data.quantity} min="0.001" step="0.001"
+                        onChange={e => setData('quantity', e.target.value)} error={!!errors.quantity} />
+                    <InputError message={errors.quantity} />
                 </div>
                 <div className="flex gap-2 pt-2">
                     <PrimaryButton type="submit" loading={processing} className="flex-1 justify-center">
@@ -75,12 +72,16 @@ export default function WarehouseShow({ warehouse, stock, warehouses }: {
     const columns = [
         { key: 'name', label: t('inventory.itemName'), render: (_: any, row: StockItem) => (
             <div>
-                <p className="text-white">{row.name}</p>
-                {row.sku && <p className="text-slate-500 font-mono text-xs">{row.sku}</p>}
+                <p style={{ color: 'var(--color-text-strong)' }}>{row.name}</p>
+                {row.sku && <p className="font-mono text-xs" style={{ color: 'var(--color-text-muted)' }}>{row.sku}</p>}
             </div>
         )},
         { key: 'quantity', label: t('payments.amount'),
-            render: (v: number, row: StockItem) => <span className="text-white font-medium">{v.toLocaleString()} {row.unit}</span>
+            render: (v: number, row: StockItem) => (
+                <span className="font-medium" style={{ color: 'var(--color-text-strong)' }}>
+                    {v.toLocaleString()} {row.unit}
+                </span>
+            )
         },
     ];
 
@@ -94,15 +95,13 @@ export default function WarehouseShow({ warehouse, stock, warehouses }: {
                     subtitle={warehouse.city || undefined}
                     actions={
                         <div className="flex gap-2">
-                            <Link href={`/warehouses/${warehouse.id}/edit`}
-                                className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg text-sm transition-colors">
-                                <Pencil size={14} /> {t('common.edit')}
+                            <Link href={`/warehouses/${warehouse.id}/edit`}>
+                                <SecondaryButton><Pencil size={14} /> {t('common.edit')}</SecondaryButton>
                             </Link>
                             {stock.length > 0 && warehouses.length > 0 && (
-                                <button onClick={() => setShowTransfer(true)}
-                                    className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-lg text-sm transition-colors">
+                                <PrimaryButton onClick={() => setShowTransfer(true)}>
                                     <ArrowLeftRight size={14} /> {t('warehouse.transfer')}
-                                </button>
+                                </PrimaryButton>
                             )}
                         </div>
                     }
