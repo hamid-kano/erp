@@ -1,5 +1,5 @@
 import AppLayout from '@/Core/Layouts/AppLayout';
-import { PageHeader, Card } from '@/Core/Components/UI';
+import { PageHeader, Card, PrimaryButton, SecondaryButton, InputLabel, InputError, TextInput, Checkbox } from '@/Core/Components/UI';
 import { Head, useForm, Link } from '@inertiajs/react';
 import { Save } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -49,12 +49,11 @@ export default function WarehouseForm({ warehouse }: { warehouse?: WarehouseItem
                             <label htmlFor="is_active" className="text-sm text-slate-300 cursor-pointer">{t('common.active')}</label>
                         </div>
                         <div className="flex gap-3 pt-2">
-                            <button type="submit" disabled={processing}
-                                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-4 py-2 rounded-lg text-sm transition-colors">
-                                <Save size={16} /> {processing ? t('common.saving') : t('common.save')}
-                            </button>
-                            <Link href="/warehouses" className="bg-slate-800 text-slate-300 hover:text-white px-4 py-2 rounded-lg text-sm transition-colors">
-                                {t('common.cancel')}
+                            <PrimaryButton type="submit" loading={processing}>
+                                <Save size={15} /> {t('common.save')}
+                            </PrimaryButton>
+                            <Link href="/warehouses">
+                                <SecondaryButton type="button">{t('common.cancel')}</SecondaryButton>
                             </Link>
                         </div>
                     </form>

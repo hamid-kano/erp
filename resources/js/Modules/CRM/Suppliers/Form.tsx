@@ -1,6 +1,8 @@
 import AppLayout from '@/Core/Layouts/AppLayout';
-import { Head, useForm } from '@inertiajs/react';
-import { Save, ArrowRight } from 'lucide-react';
+import { PageHeader, Card, PrimaryButton, SecondaryButton, InputLabel, InputError, TextInput, Checkbox } from '@/Core/Components/UI';
+import { Head, Link, useForm } from '@inertiajs/react';
+import { Save } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface Supplier {
     id?: number; name: string; phone: string; email: string;
@@ -8,13 +10,14 @@ interface Supplier {
 }
 
 export default function SupplierForm({ supplier }: { supplier?: Supplier }) {
+    const { t } = useTranslation();
     const { data, setData, post, put, processing, errors } = useForm({
-        name: supplier?.name ?? '',
-        phone: supplier?.phone ?? '',
-        email: supplier?.email ?? '',
-        address: supplier?.address ?? '',
+        name:          supplier?.name          ?? '',
+        phone:         supplier?.phone         ?? '',
+        email:         supplier?.email         ?? '',
+        address:       supplier?.address       ?? '',
         payment_terms: supplier?.payment_terms ?? 30,
-        is_active: supplier?.is_active ?? true,
+        is_active:     supplier?.is_active     ?? true,
     });
 
     const submit = (e: React.FormEvent) => {
@@ -22,39 +25,58 @@ export default function SupplierForm({ supplier }: { supplier?: Supplier }) {
         supplier?.id ? put(`/suppliers/${supplier.id}`) : post('/suppliers');
     };
 
+    const isEdit = !!supplier?.id;
+
     return (
         <AppLayout>
-            <Head title={supplier ? 'تعديل مورد' : 'إضافة مورد'} />
+            <Head title={isEdit ? t('common.edit') : t('crm.newSupplier')} />
             <div className="max-w-2xl space-y-4">
-                <div className="flex items-center gap-3">
-                    <a href="/suppliers" className="text-slate-400 hover:text-white"><ArrowRight size={18} /></a>
-                    <h1 className="text-xl font-bold text-white">{supplier ? 'تعديل مورد' : 'إضافة مورد'}</h1>
-                </div>
-                <form onSubmit={submit} className="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
-                    {[
-                        { label: 'الاسم *', key: 'name', type: 'text' },
-                        { label: 'الهاتف', key: 'phone', type: 'text' },
-                        { label: 'البريد الإلكتروني', key: 'email', type: 'email' },
-                        { label: 'العنوان', key: 'address', type: 'text' },
-                        { label: 'شروط الدفع (أيام)', key: 'payment_terms', type: 'number' },
-                    ].map(field => (
-                        <div key={field.key}>
-                            <label className="block text-sm text-slate-300 mb-1">{field.label}</label>
-                            <input type={field.type} value={(data as any)[field.key]}
-                                onChange={e => setData(field.key as any, field.type === 'number' ? +e.target.value : e.target.value)}
-                                className="w-full bg-slate-800 border border-slate-700 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500" />
-                            {(errors as any)[field.key] && <p className="text-red-400 text-xs mt-1">{(errors as any)[field.key]}</p>}
+                <PageHeader
+                    breadcrumbs={[{ label: t('nav.crm') }, { label: t('nav.suppliers'), href: '/suppliers' }, { label: isEdit ? t('common.edit') : t('common.create') }]}
+                    title={isEdit ? t('common.edit') : t('crm.newSupplier')}
+                />
+                <Card>
+                    <form onSubmit={submit} className="space-y-4">
+                        <div>
+                            <InputLabel value={`${t('crm.name')} *`} />
+                            <TextInput value={data.name} onChange={e => setData('name', e.target.value)} error={!!errors.name} />
+                            <InputError message={errors.name} />
                         </div>
-                    ))}
-                    <div className="flex items-center gap-2">
-                        <input type="checkbox" id="is_active" checked={data.is_active} onChange={e => setData('is_active', e.target.checked)} className="rounded" />
-                        <label htmlFor="is_active" className="text-sm text-slate-300">نشط</label>
-                    </div>
-                    <button type="submit" disabled={processing}
-                        className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-4 py-2 rounded-lg text-sm transition-colors">
-                        <Save size={16} /> {processing ? 'جارٍ الحفظ...' : 'حفظ'}
-                    </button>
-                </form>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <InputLabel value={t('crm.phone')} />
+                                <TextInput value={data.phone} onChange={e => setData('phone', e.target.value)} />
+                            </div>
+                            <div>
+                                <InputLabel value={t('crm.email')} />
+                                <TextInput type="email" value={data.email} onChange={e => setData('email', e.target.value)} error={!!errors.email} />
+                                <InputError message={errors.email} />
+                            </div>
+                        </div>
+                        <div>
+                            <InputLabel value={t('crm.address')} />
+                            <TextInput value={data.address} onChange={e => setData('address', e.target.value)} />
+                        </div>
+                        <div>
+                            <InputLabel value="شروط الدفع (أيام)" />
+                            <TextInput type="number" value={data.payment_terms}
+                                onChange={e => setData('payment_terms', +e.target.value)} />
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Checkbox id="is_active" checked={data.is_active}
+                                onChange={e => setData('is_active', e.target.checked)} />
+                            <InputLabel htmlFor="is_active" value={t('common.active')} className="mb-0 cursor-pointer" />
+                        </div>
+                        <div className="flex gap-3 pt-2">
+                            <PrimaryButton type="submit" loading={processing}>
+                                <Save size={15} /> {t('common.save')}
+                            </PrimaryButton>
+                            <Link href="/suppliers">
+                                <SecondaryButton type="button">{t('common.cancel')}</SecondaryButton>
+                            </Link>
+                        </div>
+                    </form>
+                </Card>
             </div>
         </AppLayout>
     );
