@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Modules\Accounting\Application\UseCases\CreateChartOfAccountsFromTemplate;
 use App\Modules\Accounting\Infrastructure\Models\Account;
 use App\Modules\Accounting\Infrastructure\Models\AccountTemplate;
+use App\Modules\Accounting\Web\Requests\AccountRequest;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -61,23 +62,11 @@ class AccountController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function store(AccountRequest $request)
     {
         $this->authorize('create', Account::class);
 
-        $data = $request->validate([
-            'code'                 => ['required', 'string', 'max:20'],
-            'name'                 => ['required', 'string', 'max:255'],
-            'type'                 => ['required', 'in:asset,liability,equity,revenue,expense'],
-            'normal_balance'       => ['required', 'in:debit,credit'],
-            'parent_id'            => ['nullable', 'exists:accounts,id'],
-            'currency_id'          => ['nullable', 'exists:currencies,id'],
-            'is_postable'          => ['boolean'],
-            'opening_balance'      => ['nullable', 'numeric'],
-            'opening_balance_date' => ['nullable', 'date'],
-        ]);
-
-        Account::create($data);
+        Account::create($request->validated());
 
         return redirect()->route('accounts.index')->with('success', 'تم إضافة الحساب بنجاح');
     }
@@ -95,25 +84,13 @@ class AccountController extends Controller
         ]);
     }
 
-    public function update(Request $request, Account $account)
+    public function update(AccountRequest $request, Account $account)
     {
         $this->authorize('update', $account);
 
         $account->assertCanEdit();
 
-        $data = $request->validate([
-            'code'                 => ['required', 'string', 'max:20'],
-            'name'                 => ['required', 'string', 'max:255'],
-            'type'                 => ['required', 'in:asset,liability,equity,revenue,expense'],
-            'normal_balance'       => ['required', 'in:debit,credit'],
-            'parent_id'            => ['nullable', 'exists:accounts,id'],
-            'currency_id'          => ['nullable', 'exists:currencies,id'],
-            'is_postable'          => ['boolean'],
-            'opening_balance'      => ['nullable', 'numeric'],
-            'opening_balance_date' => ['nullable', 'date'],
-        ]);
-
-        $account->update($data);
+        $account->update($request->validated());
 
         return redirect()->route('accounts.index')->with('success', 'تم تحديث الحساب بنجاح');
     }

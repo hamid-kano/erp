@@ -4,7 +4,7 @@ import { Head } from '@inertiajs/react';
 import { useTranslation } from 'react-i18next';
 
 interface Line  { id: number; debit: number; credit: number; account: { code: string; name: string }; }
-interface Entry { id: number; date: string; description: string; reference: string; posted_at: string | null; lines: Line[]; }
+interface Entry { id: number; number: string; date: string; description: string; reference: string; posted_at: string | null; lines: Line[]; }
 
 export default function JournalEntryShow({ entry }: { entry: Entry }) {
     const { t } = useTranslation();
@@ -39,6 +39,7 @@ export default function JournalEntryShow({ entry }: { entry: Entry }) {
 
                 <div className="grid grid-cols-3 gap-4">
                     {[
+                        { label: 'رقم القيد',              value: entry.number ?? `#${entry.id}` },
                         { label: t('accounting.date'),        value: entry.date },
                         { label: t('accounting.description'), value: entry.description },
                         { label: t('accounting.reference'),   value: entry.reference || '—' },

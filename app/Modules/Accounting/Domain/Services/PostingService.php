@@ -2,6 +2,7 @@
 
 namespace App\Modules\Accounting\Domain\Services;
 
+use App\Core\DocumentSequence\DocumentSequence;
 use App\Core\Shared\Exceptions\DomainException;
 use App\Core\Tenancy\TenantManager;
 use App\Modules\Accounting\Infrastructure\Models\Account;
@@ -43,6 +44,7 @@ class PostingService
 
             $entry = JournalEntry::create([
                 'tenant_id'     => $this->tenantManager->getId(),
+                'number'        => DocumentSequence::next('journal'),
                 'currency_id'   => $currencyId,
                 'exchange_rate' => $exchangeRate,
                 'date'          => $date,

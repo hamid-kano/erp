@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Modules\Accounting\Domain\Services\PostingService;
 use App\Modules\Accounting\Infrastructure\Models\Account;
 use App\Modules\Accounting\Infrastructure\Models\JournalEntry;
-use Illuminate\Http\Request;
+use App\Modules\Accounting\Web\Requests\JournalEntryRequest;
 use Inertia\Inertia;
 
 class JournalEntryController extends Controller
@@ -33,25 +33,11 @@ class JournalEntryController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function store(JournalEntryRequest $request)
     {
         $this->authorize('create', JournalEntry::class);
 
-        $request->validate([
-            'date'               => ['required', 'date'],
-            'description'        => ['required', 'string'],
-            'lines'              => ['required', 'array', 'min:2'],
-            'lines.*.account_id' => ['required', 'exists:accounts,id'],
-            'lines.*.debit'      => ['required', 'numeric', 'min:0'],
-            'lines.*.credit'     => ['required', 'numeric', 'min:0'],
-        ]);
-
-        $this->postingService->post([
-            'date'        => $request->date,
-            'description' => $request->description,
-            'reference'   => $request->reference,
-            'lines'       => $request->lines,
-        ]);
+        $this->postingService->post($request->validated());
 
         return redirect()->route('journal-entries.index')->with('success', 'تم حفظ القيد وترحيله بنجاح');
     }

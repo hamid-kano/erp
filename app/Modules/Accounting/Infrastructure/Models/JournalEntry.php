@@ -9,7 +9,7 @@ use App\Modules\Currency\Infrastructure\Models\Currency;
 class JournalEntry extends BaseModel
 {
     protected $fillable = [
-        'tenant_id', 'currency_id', 'exchange_rate',
+        'tenant_id', 'number', 'currency_id', 'exchange_rate',
         'date', 'description', 'reference',
         'status', 'posted_at', 'created_by',
     ];

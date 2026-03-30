@@ -61,6 +61,7 @@ return new class extends Migration
         Schema::create('journal_entries', function (Blueprint $table) {
             $table->id();
             $table->string('tenant_id')->index();
+            $table->string('number')->nullable();                         // رقم القيد: JOU-2025-00001
             $table->unsignedBigInteger('currency_id')->nullable();       // عملة القيد
             $table->decimal('exchange_rate', 20, 8)->default(1);         // سعر الصرف وقت القيد
             $table->date('date');

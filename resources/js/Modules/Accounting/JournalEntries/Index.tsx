@@ -6,7 +6,7 @@ import { Plus, Eye } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 interface Entry {
-    id: number; date: string; description: string;
+    id: number; number: string; date: string; description: string;
     reference: string; posted_at: string | null; lines_count: number;
 }
 
@@ -14,6 +14,7 @@ export default function JournalEntriesIndex({ entries }: { entries: { data: Entr
     const { t } = useTranslation();
 
     const columns = [
+        { key: 'number',      label: 'رقم القيد',  render: (v: string) => <span className="font-mono text-xs font-medium" style={{ color: 'var(--color-primary)' }}>{v ?? '—'}</span> },
         { key: 'date',        label: t('accounting.date') },
         { key: 'description', label: t('accounting.description'), render: (v: string) => <span style={{ color: 'var(--color-text-strong)' }}>{v}</span> },
         { key: 'reference',   label: t('accounting.reference'),   render: (v: string) => v ? <span className="font-mono text-xs">{v}</span> : '—' },
