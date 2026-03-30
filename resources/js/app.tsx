@@ -1,4 +1,5 @@
 import '../css/app.css';
+import '@/Core/i18n';
 
 import { createInertiaApp } from '@inertiajs/react';
 import { createRoot } from 'react-dom/client';

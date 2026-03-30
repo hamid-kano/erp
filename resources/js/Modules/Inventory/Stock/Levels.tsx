@@ -1,6 +1,8 @@
 import AppLayout from '@/Core/Layouts/AppLayout';
+import { PageHeader, DataTableCard } from '@/Core/Components/UI';
 import { Head, Link } from '@inertiajs/react';
-import { AlertTriangle, CheckCircle, Package } from 'lucide-react';
+import { CheckCircle, AlertTriangle, Package } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface Item {
     id: number; name: string; sku: string | null;
@@ -8,59 +10,57 @@ interface Item {
 }
 
 export default function StockLevels({ lowStock }: { lowStock: Item[] }) {
+    const { t } = useTranslation();
+
+    const columns = [
+        { key: 'name', label: t('inventory.itemName'), render: (_: any, row: Item) => (
+            <div className="flex items-center gap-2">
+                <Package size={15} className="text-slate-500" />
+                <div>
+                    <p className="text-white font-medium">{row.name}</p>
+                    {row.sku && <p className="text-slate-500 font-mono text-xs">{row.sku}</p>}
+                </div>
+            </div>
+        )},
+        { key: 'reorder_point', label: t('inventory.reorderPoint'),
+            render: (v: number, row: Item) => (
+                <span className="text-yellow-400 font-medium">
+                    {Number(v).toLocaleString()} {row.unit?.symbol}
+                </span>
+            )
+        },
+        { key: 'id', label: '', render: (_: any, row: Item) => (
+            <Link href={`/items/${row.id}`} className="text-blue-400 hover:text-blue-300 text-xs">
+                {t('common.actions')}
+            </Link>
+        )},
+    ];
+
     return (
         <AppLayout>
-            <Head title="مستويات المخزون" />
+            <Head title={t('nav.stockLevels')} />
             <div className="space-y-4">
-                <h1 className="text-xl font-bold text-white">مستويات المخزون</h1>
+                <PageHeader
+                    breadcrumbs={[{ label: t('nav.inventory') }, { label: t('nav.stockLevels') }]}
+                    title={t('nav.stockLevels')}
+                />
 
                 {lowStock.length === 0 ? (
                     <div className="bg-green-500/5 border border-green-500/20 rounded-xl p-10 text-center">
                         <CheckCircle size={40} className="text-green-400 mx-auto mb-3" />
-                        <p className="text-green-400 font-medium">جميع الأصناف فوق نقطة إعادة الطلب ✓</p>
+                        <p className="text-green-400 font-medium">{t('inventory.allGood')}</p>
                     </div>
                 ) : (
-                    <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
-                        <div className="px-4 py-3 border-b border-slate-800 flex items-center gap-2 bg-yellow-500/5">
-                            <AlertTriangle size={16} className="text-yellow-400" />
-                            <h2 className="text-yellow-400 font-medium text-sm">
-                                أصناف تحتاج إعادة طلب ({lowStock.length})
-                            </h2>
-                        </div>
-                        <table className="w-full text-sm">
-                            <thead className="border-b border-slate-800">
-                                <tr className="text-slate-400">
-                                    <th className="text-right px-4 py-3">الصنف</th>
-                                    <th className="text-right px-4 py-3">نقطة الطلب</th>
-                                    <th className="px-4 py-3"></th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-800">
-                                {lowStock.map(i => (
-                                    <tr key={i.id} className="hover:bg-slate-800/50">
-                                        <td className="px-4 py-3">
-                                            <div className="flex items-center gap-2">
-                                                <Package size={15} className="text-slate-500" />
-                                                <div>
-                                                    <p className="text-white font-medium">{i.name}</p>
-                                                    {i.sku && <p className="text-slate-500 font-mono text-xs">{i.sku}</p>}
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-4 py-3 text-yellow-400 font-medium">
-                                            {Number(i.reorder_point).toLocaleString()} {i.unit?.symbol}
-                                        </td>
-                                        <td className="px-4 py-3">
-                                            <Link href={`/items/${i.id}`}
-                                                className="text-blue-400 hover:text-blue-300 text-xs">
-                                                عرض التفاصيل
-                                            </Link>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                    <DataTableCard
+                        title={
+                            <span className="flex items-center gap-2 text-yellow-400">
+                                <AlertTriangle size={16} />
+                                {t('inventory.lowStock')} ({lowStock.length})
+                            </span>
+                        }
+                        columns={columns}
+                        data={lowStock}
+                    />
                 )}
             </div>
         </AppLayout>

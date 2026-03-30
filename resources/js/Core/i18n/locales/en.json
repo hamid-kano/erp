@@ -1,0 +1,170 @@
+{
+  "common": {
+    "save":      "Save",
+    "cancel":    "Cancel",
+    "delete":    "Delete",
+    "edit":      "Edit",
+    "create":    "Create",
+    "search":    "Search",
+    "loading":   "Loading...",
+    "noData":    "No data available",
+    "back":      "Back",
+    "all":       "All",
+    "actions":   "Actions",
+    "status":    "Status",
+    "active":    "Active",
+    "inactive":  "Inactive",
+    "yes":       "Yes",
+    "no":        "No",
+    "confirm":   "Confirm",
+    "saving":    "Saving...",
+    "deleting":  "Deleting..."
+  },
+  "nav": {
+    "dashboard":   "Dashboard",
+    "crm":         "CRM",
+    "customers":   "Customers",
+    "suppliers":   "Suppliers",
+    "inventory":   "Inventory",
+    "items":       "Items",
+    "itemGroups":  "Item Groups",
+    "stockLevels": "Stock Levels",
+    "warehouses":  "Warehouses",
+    "purchasing":  "Purchasing",
+    "purchaseOrders":   "Purchase Orders",
+    "purchaseInvoices": "Purchase Invoices",
+    "sales":       "Sales",
+    "salesOrders":   "Sales Orders",
+    "salesInvoices": "Sales Invoices",
+    "accounting":  "Accounting",
+    "accounts":    "Accounts",
+    "journalEntries": "Journal Entries",
+    "trialBalance": "Trial Balance",
+    "payments":    "Payments",
+    "settings":    "Settings",
+    "logout":      "Logout",
+    "profile":     "Profile",
+    "collapse":    "Collapse"
+  },
+  "dashboard": {
+    "title":          "Dashboard",
+    "subtitle":       "Welcome! Here's your summary.",
+    "totalItems":     "Total Items",
+    "totalCustomers": "Total Customers",
+    "totalSuppliers": "Total Suppliers",
+    "totalWarehouses":"Total Warehouses",
+    "revenue":        "Revenue",
+    "pendingInvoices":"Pending Invoices",
+    "recentSales":    "Recent Sales",
+    "recentPurchases":"Recent Purchases"
+  },
+  "inventory": {
+    "items":          "Items",
+    "newItem":        "New Item",
+    "editItem":       "Edit Item",
+    "itemName":       "Item Name",
+    "sku":            "SKU",
+    "itemGroup":      "Item Group",
+    "itemType":       "Item Type",
+    "unit":           "Unit",
+    "costPrice":      "Cost Price",
+    "sellPrice":      "Sell Price",
+    "reorderPoint":   "Reorder Point",
+    "costMethod":     "Cost Method",
+    "fifo":           "FIFO - First In First Out",
+    "weighted":       "Weighted Average",
+    "itemTypes": {
+      "raw_material":  "Raw Material",
+      "finished_good": "Finished Good",
+      "service":       "Service",
+      "asset":         "Asset"
+    },
+    "stockMovements": "Stock Movements",
+    "movements": {
+      "in":         "In",
+      "out":        "Out",
+      "transfer":   "Transfer",
+      "adjustment": "Adjustment"
+    },
+    "lowStock":       "Items Need Reorder",
+    "allGood":        "All items are above reorder point ✓"
+  },
+  "warehouse": {
+    "warehouses":   "Warehouses",
+    "newWarehouse": "New Warehouse",
+    "editWarehouse":"Edit Warehouse",
+    "name":         "Warehouse Name",
+    "city":         "City",
+    "transfer":     "Transfer Stock",
+    "from":         "From Warehouse",
+    "to":           "To Warehouse"
+  },
+  "crm": {
+    "customers":   "Customers",
+    "suppliers":   "Suppliers",
+    "newCustomer": "New Customer",
+    "newSupplier": "New Supplier",
+    "name":        "Name",
+    "phone":       "Phone",
+    "email":       "Email",
+    "address":     "Address",
+    "balance":     "Balance"
+  },
+  "accounting": {
+    "accounts":       "Accounts",
+    "journalEntries": "Journal Entries",
+    "trialBalance":   "Trial Balance",
+    "debit":          "Debit",
+    "credit":         "Credit",
+    "balance":        "Balance",
+    "date":           "Date",
+    "description":    "Description",
+    "reference":      "Reference"
+  },
+  "sales": {
+    "orders":   "Sales Orders",
+    "invoices": "Sales Invoices",
+    "newOrder": "New Sales Order",
+    "statuses": {
+      "draft":     "Draft",
+      "confirmed": "Confirmed",
+      "shipped":   "Shipped",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled",
+      "paid":      "Paid",
+      "unpaid":    "Unpaid",
+      "partial":   "Partial"
+    }
+  },
+  "purchasing": {
+    "orders":   "Purchase Orders",
+    "invoices": "Purchase Invoices",
+    "newOrder": "New Purchase Order"
+  },
+  "payments": {
+    "title":     "Payments",
+    "in":        "Receipts",
+    "out":       "Payments",
+    "amount":    "Amount",
+    "date":      "Date",
+    "reference": "Reference"
+  },
+  "auth": {
+    "login":          "Sign In",
+    "logout":         "Logout",
+    "email":          "Email",
+    "password":       "Password",
+    "rememberMe":     "Remember me",
+    "forgotPassword": "Forgot password?",
+    "submit":         "Sign In"
+  },
+  "pagination": {
+    "showing": "Showing {{from}}-{{to}} of {{total}} records"
+  },
+  "errors": {
+    "network":      "Connection error, check your internet.",
+    "server":       "Server error, please try again.",
+    "unauthorized": "Session expired, please sign in again.",
+    "unknown":      "An unexpected error occurred."
+  }
+}

@@ -1,0 +1,170 @@
+{
+  "common": {
+    "save":      "حفظ",
+    "cancel":    "إلغاء",
+    "delete":    "حذف",
+    "edit":      "تعديل",
+    "create":    "إنشاء",
+    "search":    "بحث",
+    "loading":   "جاري التحميل...",
+    "noData":    "لا توجد بيانات",
+    "back":      "رجوع",
+    "all":       "الكل",
+    "actions":   "الإجراءات",
+    "status":    "الحالة",
+    "active":    "نشط",
+    "inactive":  "موقوف",
+    "yes":       "نعم",
+    "no":        "لا",
+    "confirm":   "تأكيد",
+    "saving":    "جاري الحفظ...",
+    "deleting":  "جاري الحذف..."
+  },
+  "nav": {
+    "dashboard":   "لوحة القيادة",
+    "crm":         "إدارة العملاء",
+    "customers":   "العملاء",
+    "suppliers":   "الموردين",
+    "inventory":   "المخزون",
+    "items":       "الأصناف",
+    "itemGroups":  "مجموعات الأصناف",
+    "stockLevels": "مستويات المخزون",
+    "warehouses":  "المستودعات",
+    "purchasing":  "المشتريات",
+    "purchaseOrders":   "أوامر الشراء",
+    "purchaseInvoices": "فواتير الشراء",
+    "sales":       "المبيعات",
+    "salesOrders":   "أوامر البيع",
+    "salesInvoices": "فواتير المبيعات",
+    "accounting":  "المحاسبة",
+    "accounts":    "الحسابات",
+    "journalEntries": "القيود اليومية",
+    "trialBalance": "ميزان المراجعة",
+    "payments":    "المدفوعات",
+    "settings":    "الإعدادات",
+    "logout":      "تسجيل الخروج",
+    "profile":     "الملف الشخصي",
+    "collapse":    "طي القائمة"
+  },
+  "dashboard": {
+    "title":          "لوحة القيادة",
+    "subtitle":       "مرحباً! إليك ملخص اليوم.",
+    "totalItems":     "إجمالي الأصناف",
+    "totalCustomers": "إجمالي العملاء",
+    "totalSuppliers": "إجمالي الموردين",
+    "totalWarehouses":"إجمالي المستودعات",
+    "revenue":        "الإيرادات",
+    "pendingInvoices":"فواتير معلقة",
+    "recentSales":    "أحدث المبيعات",
+    "recentPurchases":"أحدث المشتريات"
+  },
+  "inventory": {
+    "items":          "الأصناف",
+    "newItem":        "صنف جديد",
+    "editItem":       "تعديل صنف",
+    "itemName":       "اسم الصنف",
+    "sku":            "الكود (SKU)",
+    "itemGroup":      "المجموعة",
+    "itemType":       "نوع الصنف",
+    "unit":           "وحدة القياس",
+    "costPrice":      "سعر التكلفة",
+    "sellPrice":      "سعر البيع",
+    "reorderPoint":   "نقطة إعادة الطلب",
+    "costMethod":     "طريقة التكلفة",
+    "fifo":           "FIFO - الأول دخولاً أول خروجاً",
+    "weighted":       "المتوسط المرجح",
+    "itemTypes": {
+      "raw_material":  "مادة خام",
+      "finished_good": "منتج نهائي",
+      "service":       "خدمة",
+      "asset":         "أصل"
+    },
+    "stockMovements": "حركات المخزون",
+    "movements": {
+      "in":         "وارد",
+      "out":        "صادر",
+      "transfer":   "تحويل",
+      "adjustment": "تسوية"
+    },
+    "lowStock":       "أصناف تحتاج إعادة طلب",
+    "allGood":        "جميع الأصناف فوق نقطة إعادة الطلب ✓"
+  },
+  "warehouse": {
+    "warehouses":  "المستودعات",
+    "newWarehouse":"مستودع جديد",
+    "editWarehouse":"تعديل مستودع",
+    "name":        "اسم المستودع",
+    "city":        "المدينة",
+    "transfer":    "نقل مخزون",
+    "from":        "من مستودع",
+    "to":          "إلى مستودع"
+  },
+  "crm": {
+    "customers":    "العملاء",
+    "suppliers":    "الموردين",
+    "newCustomer":  "عميل جديد",
+    "newSupplier":  "مورد جديد",
+    "name":         "الاسم",
+    "phone":        "الهاتف",
+    "email":        "البريد الإلكتروني",
+    "address":      "العنوان",
+    "balance":      "الرصيد"
+  },
+  "accounting": {
+    "accounts":       "الحسابات",
+    "journalEntries": "القيود اليومية",
+    "trialBalance":   "ميزان المراجعة",
+    "debit":          "مدين",
+    "credit":         "دائن",
+    "balance":        "الرصيد",
+    "date":           "التاريخ",
+    "description":    "البيان",
+    "reference":      "المرجع"
+  },
+  "sales": {
+    "orders":   "أوامر البيع",
+    "invoices": "فواتير المبيعات",
+    "newOrder": "أمر بيع جديد",
+    "statuses": {
+      "draft":     "مسودة",
+      "confirmed": "مؤكد",
+      "shipped":   "مشحون",
+      "delivered": "مُسلَّم",
+      "cancelled": "ملغي",
+      "paid":      "مدفوع",
+      "unpaid":    "غير مدفوع",
+      "partial":   "جزئي"
+    }
+  },
+  "purchasing": {
+    "orders":   "أوامر الشراء",
+    "invoices": "فواتير الشراء",
+    "newOrder": "أمر شراء جديد"
+  },
+  "payments": {
+    "title":     "المدفوعات",
+    "in":        "مقبوضات",
+    "out":       "مدفوعات",
+    "amount":    "المبلغ",
+    "date":      "التاريخ",
+    "reference": "المرجع"
+  },
+  "auth": {
+    "login":          "تسجيل الدخول",
+    "logout":         "تسجيل الخروج",
+    "email":          "البريد الإلكتروني",
+    "password":       "كلمة المرور",
+    "rememberMe":     "تذكرني",
+    "forgotPassword": "نسيت كلمة المرور؟",
+    "submit":         "دخول"
+  },
+  "pagination": {
+    "showing": "عرض {{from}}-{{to}} من {{total}} سجل"
+  },
+  "errors": {
+    "network":      "خطأ في الاتصال، تحقق من الإنترنت.",
+    "server":       "خطأ في الخادم، حاول مجدداً.",
+    "unauthorized": "انتهت جلستك، سجّل الدخول مجدداً.",
+    "unknown":      "حدث خطأ غير متوقع."
+  }
+}

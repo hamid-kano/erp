@@ -1,80 +1,82 @@
 import { Link, usePage, router } from '@inertiajs/react';
 import { useState } from 'react';
 import { PageProps } from '@/Core/types';
+import useUIStore from '@/Core/store/uiStore';
+import { useApplySettings } from '@/Core/hooks/useApplySettings';
+import { useTranslation } from 'react-i18next';
 import {
     LayoutDashboard, Users, Package, Warehouse, ShoppingCart,
     TrendingUp, BookOpen, CreditCard, ChevronDown, Menu, X,
-    LogOut, User, ChevronRight,
+    LogOut, User, ChevronRight, Sun, Moon,
 } from 'lucide-react';
 import { cn } from '@/Core/lib/utils';
 
 interface NavItem {
-    label: string;
-    href?: string;
-    icon: React.ReactNode;
-    children?: { label: string; href: string }[];
+    label:     string;
+    i18nKey?:  string;
+    href?:     string;
+    icon:      React.ReactNode;
+    children?: { label: string; i18nKey?: string; href: string }[];
 }
 
 const navItems: NavItem[] = [
     {
-        label: 'لوحة القيادة',
-        href: '/',
-        icon: <LayoutDashboard size={18} />,
+        label: 'لوحة القيادة', i18nKey: 'nav.dashboard',
+        href: '/', icon: <LayoutDashboard size={18} />,
     },
     {
-        label: 'CRM',
+        label: 'CRM', i18nKey: 'nav.crm',
         icon: <Users size={18} />,
         children: [
-            { label: 'العملاء', href: '/customers' },
-            { label: 'الموردين', href: '/suppliers' },
+            { label: 'العملاء',  i18nKey: 'nav.customers', href: '/customers' },
+            { label: 'الموردين', i18nKey: 'nav.suppliers', href: '/suppliers' },
         ],
     },
     {
-        label: 'المخزون',
+        label: 'المخزون', i18nKey: 'nav.inventory',
         icon: <Package size={18} />,
         children: [
-            { label: 'المنتجات', href: '/products' },
-            { label: 'مستويات المخزون', href: '/stock/levels' },
+            { label: 'الأصناف',          i18nKey: 'nav.items',       href: '/items' },
+            { label: 'مستويات المخزون',  i18nKey: 'nav.stockLevels', href: '/stock/levels' },
         ],
     },
     {
-        label: 'المستودعات',
+        label: 'المستودعات', i18nKey: 'nav.warehouses',
         icon: <Warehouse size={18} />,
         children: [
-            { label: 'المستودعات', href: '/warehouses' },
-            { label: 'المواقع', href: '/locations' },
+            { label: 'المستودعات', i18nKey: 'nav.warehouses', href: '/warehouses' },
         ],
     },
     {
-        label: 'المشتريات',
+        label: 'المشتريات', i18nKey: 'nav.purchasing',
         icon: <ShoppingCart size={18} />,
         children: [
-            { label: 'أوامر الشراء', href: '/purchase-orders' },
-            { label: 'فواتير الشراء', href: '/purchase-invoices' },
+            { label: 'أوامر الشراء',  i18nKey: 'nav.purchaseOrders',   href: '/purchase-orders' },
+            { label: 'فواتير الشراء', i18nKey: 'nav.purchaseInvoices', href: '/purchase-invoices' },
         ],
     },
     {
-        label: 'المبيعات',
+        label: 'المبيعات', i18nKey: 'nav.sales',
         icon: <TrendingUp size={18} />,
         children: [
-            { label: 'أوامر البيع', href: '/sales-orders' },
-            { label: 'الفواتير', href: '/sales-invoices' },
+            { label: 'أوامر البيع',      i18nKey: 'nav.salesOrders',   href: '/sales-orders' },
+            { label: 'فواتير المبيعات',  i18nKey: 'nav.salesInvoices', href: '/sales-invoices' },
         ],
     },
     {
-        label: 'المحاسبة',
+        label: 'المحاسبة', i18nKey: 'nav.accounting',
         icon: <BookOpen size={18} />,
         children: [
-            { label: 'القيود', href: '/journal-entries' },
-            { label: 'الحسابات', href: '/accounts' },
-            { label: 'ميزان المراجعة', href: '/reports/trial-balance' },
+            { label: 'القيود',          i18nKey: 'nav.journalEntries', href: '/journal-entries' },
+            { label: 'الحسابات',        i18nKey: 'nav.accounts',       href: '/accounts' },
+            { label: 'ميزان المراجعة',  i18nKey: 'nav.trialBalance',   href: '/reports/trial-balance' },
         ],
     },
     {
-        label: 'المدفوعات',
+        label: 'المدفوعات', i18nKey: 'nav.payments',
         icon: <CreditCard size={18} />,
         children: [
-            { label: 'المدفوعات', href: '/payments' },
+            { label: 'المدفوعات', i18nKey: 'nav.payments', href: '/payments' },
         ],
     },
 ];
@@ -82,6 +84,9 @@ const navItems: NavItem[] = [
 function NavItemComponent({ item, collapsed }: { item: NavItem; collapsed: boolean }) {
     const [open, setOpen] = useState(false);
     const { url } = usePage();
+    const { t } = useTranslation();
+
+    const label = item.i18nKey ? t(item.i18nKey) : item.label;
 
     if (item.href) {
         return (
@@ -95,7 +100,7 @@ function NavItemComponent({ item, collapsed }: { item: NavItem; collapsed: boole
                 )}
             >
                 {item.icon}
-                {!collapsed && <span>{item.label}</span>}
+                {!collapsed && <span>{label}</span>}
             </Link>
         );
     }
@@ -112,7 +117,7 @@ function NavItemComponent({ item, collapsed }: { item: NavItem; collapsed: boole
                 {item.icon}
                 {!collapsed && (
                     <>
-                        <span className="flex-1 text-right">{item.label}</span>
+                        <span className="flex-1 text-right">{label}</span>
                         <ChevronDown size={14} className={cn('transition-transform', open && 'rotate-180')} />
                     </>
                 )}
@@ -131,7 +136,7 @@ function NavItemComponent({ item, collapsed }: { item: NavItem; collapsed: boole
                             )}
                         >
                             <ChevronRight size={12} />
-                            {child.label}
+                            {child.i18nKey ? t(child.i18nKey) : child.label}
                         </Link>
                     ))}
                 </div>
@@ -143,12 +148,16 @@ function NavItemComponent({ item, collapsed }: { item: NavItem; collapsed: boole
 export default function AppLayout({ children }: { children: React.ReactNode }) {
     const { auth } = usePage<PageProps>().props;
     if (!auth?.user) return null;
-    const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-    const [mobileOpen, setMobileOpen] = useState(false);
 
-    const handleLogout = () => {
-        router.post('/logout');
-    };
+    const {
+        sidebarCollapsed, sidebarMobileOpen,
+        toggleSidebar, toggleMobileSidebar, closeMobileSidebar,
+        toggleTheme, setLang, theme, lang,
+    } = useUIStore();
+
+    useApplySettings();
+
+    const handleLogout = () => router.post('/logout');
 
     return (
         <div className="flex h-screen bg-slate-950 overflow-hidden" dir="rtl">
@@ -160,27 +169,21 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                     'hidden md:flex'
                 )}
             >
-                {/* Logo */}
                 <div className="flex items-center justify-between p-4 border-b border-slate-800">
                     {!sidebarCollapsed && (
                         <span className="text-white font-bold text-lg">ERP System</span>
                     )}
-                    <button
-                        onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-                        className="text-slate-400 hover:text-white p-1 rounded"
-                    >
+                    <button onClick={toggleSidebar} className="text-slate-400 hover:text-white p-1 rounded">
                         <Menu size={18} />
                     </button>
                 </div>
 
-                {/* Nav */}
                 <nav className="flex-1 overflow-y-auto p-3 space-y-1">
                     {navItems.map((item) => (
                         <NavItemComponent key={item.label} item={item} collapsed={sidebarCollapsed} />
                     ))}
                 </nav>
 
-                {/* User */}
                 <div className="p-3 border-t border-slate-800">
                     <div className={cn('flex items-center gap-3', sidebarCollapsed && 'justify-center')}>
                         <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center shrink-0">
@@ -201,14 +204,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 </div>
             </aside>
 
-            {/* Mobile Sidebar Overlay */}
-            {mobileOpen && (
+            {/* Mobile Sidebar */}
+            {sidebarMobileOpen && (
                 <div className="fixed inset-0 z-50 md:hidden">
-                    <div className="absolute inset-0 bg-black/60" onClick={() => setMobileOpen(false)} />
+                    <div className="absolute inset-0 bg-black/60" onClick={closeMobileSidebar} />
                     <aside className="absolute right-0 top-0 h-full w-64 bg-slate-900 flex flex-col">
                         <div className="flex items-center justify-between p-4 border-b border-slate-800">
                             <span className="text-white font-bold text-lg">ERP System</span>
-                            <button onClick={() => setMobileOpen(false)} className="text-slate-400">
+                            <button onClick={closeMobileSidebar} className="text-slate-400">
                                 <X size={18} />
                             </button>
                         </div>
@@ -223,15 +226,20 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
             {/* Main */}
             <div className="flex-1 flex flex-col overflow-hidden">
-                {/* Topbar */}
                 <header className="bg-slate-900 border-b border-slate-800 px-4 py-3 flex items-center justify-between shrink-0">
-                    <button
-                        onClick={() => setMobileOpen(true)}
-                        className="md:hidden text-slate-400 hover:text-white"
-                    >
+                    <button onClick={toggleMobileSidebar} className="md:hidden text-slate-400 hover:text-white">
                         <Menu size={20} />
                     </button>
                     <div className="flex items-center gap-3 mr-auto">
+                        <button
+                            onClick={() => setLang(lang === 'ar' ? 'en' : 'ar')}
+                            className="text-slate-400 hover:text-white px-2 py-1 rounded text-xs font-bold border border-slate-700"
+                        >
+                            {lang === 'ar' ? 'EN' : 'ع'}
+                        </button>
+                        <button onClick={toggleTheme} className="text-slate-400 hover:text-white p-1 rounded">
+                            {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+                        </button>
                         <span className="text-slate-400 text-sm">{auth.user.name}</span>
                         <button onClick={handleLogout} className="text-slate-400 hover:text-red-400">
                             <LogOut size={16} />
@@ -239,7 +247,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                     </div>
                 </header>
 
-                {/* Content */}
                 <main className="flex-1 overflow-y-auto p-6 bg-slate-950">
                     {children}
                 </main>
