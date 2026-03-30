@@ -88,3 +88,38 @@
   from { opacity: 0; transform: scale(0.95); }
   to   { opacity: 1; transform: scale(1); }
 }
+
+/* ── Sonner Toast Overrides ── */
+[data-sonner-toaster] {
+  --normal-bg:      var(--color-surface)  !important;
+  --normal-border:  var(--color-border)   !important;
+  --normal-text:    var(--color-text-strong) !important;
+
+  --success-bg:     var(--color-surface)  !important;
+  --success-border: var(--color-success)  !important;
+  --success-text:   var(--color-success)  !important;
+
+  --error-bg:       var(--color-surface)  !important;
+  --error-border:   var(--color-danger)   !important;
+  --error-text:     var(--color-danger)   !important;
+
+  --warning-bg:     var(--color-surface)  !important;
+  --warning-border: var(--color-warning)  !important;
+  --warning-text:   var(--color-warning)  !important;
+
+  --info-bg:        var(--color-surface)  !important;
+  --info-border:    var(--color-info)     !important;
+  --info-text:      var(--color-info)     !important;
+}
+
+[data-sonner-toast] {
+  border-radius: 12px !important;
+  font-size:     13px !important;
+  box-shadow:    0 4px 24px rgba(0,0,0,0.12) !important;
+  font-family:   inherit !important;
+}
+
+[data-sonner-toast][data-type='success'] { border-color: var(--color-success) !important; }
+[data-sonner-toast][data-type='error']   { border-color: var(--color-danger)  !important; }
+[data-sonner-toast][data-type='warning'] { border-color: var(--color-warning) !important; }
+[data-sonner-toast][data-type='info']    { border-color: var(--color-info)    !important; }

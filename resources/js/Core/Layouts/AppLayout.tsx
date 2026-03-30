@@ -4,13 +4,16 @@ import useUIStore from '@/Core/store/uiStore';
 import { useApplySettings } from '@/Core/hooks/useApplySettings';
 import Sidebar from '@/Core/Components/Sidebar';
 import Navbar from '@/Core/Components/Navbar';
+import { Toaster } from 'sonner';
+import { useFlashToast } from '@/Core/hooks/useFlashToast';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
     const { auth } = usePage<PageProps>().props;
     if (!auth?.user) return null;
 
-    const { sidebarCollapsed, lang } = useUIStore();
+    const { sidebarCollapsed, lang, theme } = useUIStore();
     useApplySettings();
+    useFlashToast();
 
     const isRTL = lang === 'ar';
     const offset = sidebarCollapsed
@@ -26,6 +29,27 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                     {children}
                 </main>
             </div>
+            <Toaster
+                position="bottom-left"
+                dir={isRTL ? 'rtl' : 'ltr'}
+                theme={theme}
+                toastOptions={{
+                    style: {
+                        background:   'var(--color-surface)',
+                        border:       '1px solid var(--color-border)',
+                        color:        'var(--color-text-strong)',
+                        borderRadius: '12px',
+                        fontSize:     '13px',
+                        boxShadow:    '0 4px 24px rgba(0,0,0,0.12)',
+                    },
+                }}
+                icons={{
+                    success: '✓',
+                    error:   '✕',
+                    warning: '⚠',
+                    info:    'ℹ',
+                }}
+            />
         </div>
     );
 }
