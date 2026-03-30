@@ -1,6 +1,6 @@
 import AppLayout from '@/Core/Layouts/AppLayout';
 import Flash from '@/Core/Components/Flash';
-import { PageHeader, Card, Badge, DataTableCard } from '@/Core/Components/UI';
+import { PageHeader, Badge, DataTableCard, Modal, PrimaryButton, SecondaryButton } from '@/Core/Components/UI';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { ArrowLeftRight, Pencil } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -27,49 +27,42 @@ function TransferModal({ warehouseId, stock, warehouses, onClose }: {
     };
 
     return (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-            <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 w-full max-w-md">
-                <h2 className="text-white font-semibold mb-4 flex items-center gap-2">
-                    <ArrowLeftRight size={18} className="text-blue-400" /> {t('warehouse.transfer')}
-                </h2>
-                <form onSubmit={submit} className="space-y-4">
-                    <div>
-                        <label className={labelCls}>{t('inventory.items')} *</label>
-                        <select value={data.product_id} onChange={e => setData('product_id', e.target.value)} className={inputCls}>
-                            <option value="">—</option>
-                            {stock.map(s => (
-                                <option key={s.id} value={s.id}>{s.name} — {s.quantity} {s.unit}</option>
-                            ))}
-                        </select>
-                        {errors.product_id && <p className="text-red-400 text-xs mt-1">{errors.product_id}</p>}
-                    </div>
-                    <div>
-                        <label className={labelCls}>{t('warehouse.to')} *</label>
-                        <select value={data.to_warehouse_id} onChange={e => setData('to_warehouse_id', e.target.value)} className={inputCls}>
-                            <option value="">—</option>
-                            {warehouses.map(w => <option key={w.id} value={w.id}>{w.name}</option>)}
-                        </select>
-                        {errors.to_warehouse_id && <p className="text-red-400 text-xs mt-1">{errors.to_warehouse_id}</p>}
-                    </div>
-                    <div>
-                        <label className={labelCls}>{t('payments.amount')} *</label>
-                        <input type="number" value={data.quantity} min="0.001" step="0.001"
-                            onChange={e => setData('quantity', e.target.value)} className={inputCls} />
-                        {errors.quantity && <p className="text-red-400 text-xs mt-1">{errors.quantity}</p>}
-                    </div>
-                    <div className="flex gap-2 pt-2">
-                        <button type="submit" disabled={processing}
-                            className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white py-2 rounded-lg text-sm transition-colors">
-                            {processing ? t('common.saving') : t('warehouse.transfer')}
-                        </button>
-                        <button type="button" onClick={onClose}
-                            className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 py-2 rounded-lg text-sm transition-colors">
-                            {t('common.cancel')}
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
+        <Modal show title={t('warehouse.transfer')} onClose={onClose}>
+            <form onSubmit={submit} className="space-y-4">
+                <div>
+                    <label className={labelCls}>{t('inventory.items')} *</label>
+                    <select value={data.product_id} onChange={e => setData('product_id', e.target.value)} className={inputCls}>
+                        <option value="">—</option>
+                        {stock.map(s => (
+                            <option key={s.id} value={s.id}>{s.name} — {s.quantity} {s.unit}</option>
+                        ))}
+                    </select>
+                    {errors.product_id && <p className="text-xs mt-1" style={{color:'var(--color-danger)'}}>{errors.product_id}</p>}
+                </div>
+                <div>
+                    <label className={labelCls}>{t('warehouse.to')} *</label>
+                    <select value={data.to_warehouse_id} onChange={e => setData('to_warehouse_id', e.target.value)} className={inputCls}>
+                        <option value="">—</option>
+                        {warehouses.map(w => <option key={w.id} value={w.id}>{w.name}</option>)}
+                    </select>
+                    {errors.to_warehouse_id && <p className="text-xs mt-1" style={{color:'var(--color-danger)'}}>{errors.to_warehouse_id}</p>}
+                </div>
+                <div>
+                    <label className={labelCls}>{t('payments.amount')} *</label>
+                    <input type="number" value={data.quantity} min="0.001" step="0.001"
+                        onChange={e => setData('quantity', e.target.value)} className={inputCls} />
+                    {errors.quantity && <p className="text-xs mt-1" style={{color:'var(--color-danger)'}}>{errors.quantity}</p>}
+                </div>
+                <div className="flex gap-2 pt-2">
+                    <PrimaryButton type="submit" loading={processing} className="flex-1 justify-center">
+                        {t('warehouse.transfer')}
+                    </PrimaryButton>
+                    <SecondaryButton type="button" onClick={onClose} className="flex-1 justify-center">
+                        {t('common.cancel')}
+                    </SecondaryButton>
+                </div>
+            </form>
+        </Modal>
     );
 }
 

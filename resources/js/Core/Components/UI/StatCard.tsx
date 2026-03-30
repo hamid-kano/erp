@@ -17,8 +17,8 @@ export default function StatCard({ icon: Icon, label, value, iconClass, classNam
                 <Icon size={18} />
             </div>
             <div className="min-w-0">
-                <div className="text-xs text-slate-400 uppercase tracking-wide truncate">{label}</div>
-                <div className="text-lg font-bold text-white mt-0.5 truncate">{value}</div>
+                <div className="text-xs uppercase tracking-wide truncate" style={{ color: 'var(--color-text-muted)' }}>{label}</div>
+                <div className="text-lg font-bold mt-0.5 truncate" style={{ color: 'var(--color-text-strong)' }}>{value}</div>
             </div>
         </Card>
     );

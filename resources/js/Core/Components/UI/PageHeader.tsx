@@ -20,13 +20,17 @@ export default function PageHeader({ breadcrumbs = [], title, subtitle, actions 
                         const isLast = i === breadcrumbs.length - 1;
                         return (
                             <div key={i} className="flex items-center gap-1.5">
-                                {i > 0 && <ChevronLeft size={12} className="text-slate-600 rtl:rotate-180" />}
+                                {i > 0 && <ChevronLeft size={12} className="rtl:rotate-180" style={{ color: 'var(--color-text-muted)' }} />}
                                 {isLast || !item.href ? (
-                                    <span className={`text-xs ${isLast ? 'text-white font-medium' : 'text-slate-400'}`}>
+                                    <span className="text-xs font-medium"
+                                        style={{ color: isLast ? 'var(--color-text-strong)' : 'var(--color-text-muted)' }}>
                                         {item.label}
                                     </span>
                                 ) : (
-                                    <Link href={item.href} className="text-xs text-slate-400 hover:text-blue-400 transition-colors">
+                                    <Link href={item.href} className="text-xs transition-colors"
+                                        style={{ color: 'var(--color-text-muted)' }}
+                                        onMouseEnter={e => (e.currentTarget.style.color = 'var(--color-primary)')}
+                                        onMouseLeave={e => (e.currentTarget.style.color = 'var(--color-text-muted)')}>
                                         {item.label}
                                     </Link>
                                 )}
@@ -37,8 +41,8 @@ export default function PageHeader({ breadcrumbs = [], title, subtitle, actions 
             )}
             <div className="flex items-start justify-between gap-4">
                 <div>
-                    <h1 className="text-xl font-bold text-white">{title}</h1>
-                    {subtitle && <p className="text-sm text-slate-400 mt-0.5">{subtitle}</p>}
+                    <h1 className="text-xl font-bold" style={{ color: 'var(--color-text-strong)' }}>{title}</h1>
+                    {subtitle && <p className="text-sm mt-0.5" style={{ color: 'var(--color-text-muted)' }}>{subtitle}</p>}
                 </div>
                 {actions && <div className="flex items-center gap-2 shrink-0">{actions}</div>}
             </div>
