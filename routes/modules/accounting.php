@@ -16,4 +16,6 @@ Route::resource('fiscal-periods', FiscalPeriodController::class)->only(['index',
 Route::post('fiscal-periods/{fiscalPeriod}/close', [FiscalPeriodController::class, 'close'])->name('fiscal-periods.close');
 
 // Reports
-Route::get('reports/trial-balance', [ReportController::class, 'trialBalance'])->name('reports.trial-balance');
+Route::get('reports/trial-balance',    [ReportController::class, 'trialBalance'])->name('reports.trial-balance');
+Route::get('reports/income-statement', [ReportController::class, 'incomeStatement'])->name('reports.income-statement');
+Route::get('reports/balance-sheet',    [ReportController::class, 'balanceSheet'])->name('reports.balance-sheet');

@@ -16,6 +16,8 @@ class AccountingPermissionsSeeder extends Seeder
         'accounting.journal.create',
         'accounting.journal.reverse',
         'accounting.reports.trial_balance',
+        'accounting.reports.income_statement',
+        'accounting.reports.balance_sheet',
         'accounting.fiscal_period.view',
         'accounting.fiscal_period.create',
         'accounting.fiscal_period.close',
@@ -36,6 +38,8 @@ class AccountingPermissionsSeeder extends Seeder
             'accounting.journal.view',
             'accounting.journal.create',
             'accounting.reports.trial_balance',
+            'accounting.reports.income_statement',
+            'accounting.reports.balance_sheet',
             'accounting.fiscal_period.view',
         ]);
 
@@ -49,6 +53,8 @@ class AccountingPermissionsSeeder extends Seeder
             'accounting.accounts.view',
             'accounting.journal.view',
             'accounting.reports.trial_balance',
+            'accounting.reports.income_statement',
+            'accounting.reports.balance_sheet',
         ]);
 
         // مدير النظام — كل الصلاحيات
