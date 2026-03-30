@@ -3,15 +3,22 @@
 namespace App\Modules\Payments\Web\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Payments\Application\UseCases\ProcessPayment;
 use App\Modules\Payments\Infrastructure\Models\Payment;
+use App\Modules\Sales\Infrastructure\Models\SalesInvoice;
+use App\Modules\Purchasing\Infrastructure\Models\PurchaseInvoice;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class PaymentController extends Controller
 {
+    public function __construct(private ProcessPayment $processPayment) {}
+
     public function index()
     {
-        $payments = Payment::orderByDesc('date')
+        $payments = Payment::with('currency')
+            ->where('status', 'posted')
+            ->orderByDesc('date')
             ->when(request('direction'), fn($q, $d) => $q->where('direction', $d))
             ->paginate(20)->withQueryString();
 
@@ -21,44 +28,48 @@ class PaymentController extends Controller
         ]);
     }
 
-    public function create()
-    {
-        return Inertia::render('Payments/Form');
-    }
-
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'amount'      => ['required', 'numeric', 'min:0.01'],
-            'currency_id' => ['nullable', 'exists:currencies,id'],
-            'method'      => ['required', 'string'],
-            'date'        => ['required', 'date'],
-            'direction'   => ['required', 'in:in,out'],
-            'notes'       => ['nullable', 'string'],
+        $request->validate([
+            'amount'       => ['required', 'numeric', 'min:0.01'],
+            'method'       => ['required', 'in:cash,bank,cheque,other'],
+            'direction'    => ['required', 'in:in,out'],
+            'date'         => ['required', 'date'],
+            'currency_id'  => ['nullable', 'exists:currencies,id'],
+            'invoice_type' => ['nullable', 'in:sales,purchase'],
+            'invoice_id'   => ['nullable', 'integer'],
+            'notes'        => ['nullable', 'string', 'max:500'],
         ]);
 
-        $baseCurrencyId = app(\App\Core\Tenancy\TenantManager::class)->getBaseCurrencyId();
-        $currencyId     = $data['currency_id'] ?? $baseCurrencyId;
-        $exchangeRate   = 1.0;
+        $payment = $this->processPayment->execute($request->all());
 
-        if ($currencyId && $baseCurrencyId && $currencyId !== $baseCurrencyId) {
-            $exchangeRate = app(\App\Modules\Currency\Domain\Services\CurrencyService::class)
-                ->getRate($currencyId, $baseCurrencyId, $data['date']);
-        }
-
-        Payment::create(array_merge($data, [
-            'currency_id'   => $currencyId,
-            'exchange_rate' => $exchangeRate,
-            'amount_base'   => round($data['amount'] * $exchangeRate, 2),
-            'created_by'    => auth()->id(),
-        ]));
-
-        return redirect()->route('payments.index')->with('success', 'تم تسجيل الدفعة بنجاح');
+        return redirect()->route('payments.index')
+            ->with('success', "تم تسجيل الدفعة {$payment->number} بنجاح");
     }
 
-    public function destroy(Payment $payment)
+    public function cancel(Payment $payment)
     {
-        $payment->delete();
-        return back()->with('success', 'تم حذف الدفعة');
+        $this->processPayment->cancel($payment);
+
+        return back()->with('success', "تم إلغاء الدفعة {$payment->number}");
+    }
+
+    // جلب فواتير غير مدفوعة بالكامل للربط
+    public function pendingInvoices(Request $request)
+    {
+        $type      = $request->query('type', 'sales');
+        $tenantId  = auth()->user()->tenant_id;
+
+        $invoices = $type === 'sales'
+            ? SalesInvoice::where('tenant_id', $tenantId)
+                ->whereIn('status', ['issued', 'partial'])
+                ->orderByDesc('date')
+                ->get(['id', 'number', 'total', 'paid', 'date'])
+            : PurchaseInvoice::where('tenant_id', $tenantId)
+                ->whereIn('status', ['posted', 'partial'])
+                ->orderByDesc('date')
+                ->get(['id', 'number', 'total', 'paid', 'date']);
+
+        return response()->json($invoices);
     }
 }

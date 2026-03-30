@@ -29,6 +29,12 @@ class PurchaseInvoice extends BaseModel
         return $this->morphOne(\App\Modules\Accounting\Infrastructure\Models\JournalEntry::class, 'source');
     }
 
+    public function payments(): \Illuminate\Database\Eloquent\Relations\MorphMany
+    {
+        return $this->morphMany(\App\Modules\Payments\Infrastructure\Models\Payment::class, 'reference')
+            ->where('status', 'posted');
+    }
+
     public function getBalanceAttribute(): float
     {
         return (float)$this->total - (float)$this->paid;
