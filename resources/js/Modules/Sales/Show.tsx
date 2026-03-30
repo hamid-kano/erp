@@ -1,7 +1,9 @@
 import AppLayout from '@/Core/Layouts/AppLayout';
 import Flash from '@/Core/Components/Flash';
+import { PageHeader, Card, Badge, DataTableCard, PrimaryButton, DangerButton } from '@/Core/Components/UI';
 import { Head, router } from '@inertiajs/react';
-import { ArrowRight, CheckCircle, Truck, XCircle } from 'lucide-react';
+import { CheckCircle, Truck, XCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface Order {
     id: number; number: string; date: string; status: string; total: number;
@@ -11,100 +13,83 @@ interface Order {
     invoice?: { number: string; total: number; status: string };
 }
 
-const statusMap: Record<string, { label: string; color: string }> = {
-    draft:     { label: 'مسودة',  color: 'bg-slate-700 text-slate-300' },
-    confirmed: { label: 'مؤكد',   color: 'bg-blue-500/10 text-blue-400' },
-    shipped:   { label: 'مشحون',  color: 'bg-purple-500/10 text-purple-400' },
-    completed: { label: 'مكتمل',  color: 'bg-green-500/10 text-green-400' },
-    cancelled: { label: 'ملغي',   color: 'bg-red-500/10 text-red-400' },
+const statusVariant: Record<string, any> = {
+    draft: 'default', confirmed: 'primary', shipped: 'info', completed: 'success', cancelled: 'danger',
 };
 
 export default function SalesShow({ order }: { order: Order }) {
+    const { t } = useTranslation();
+
+    const columns = [
+        { key: 'product', label: t('inventory.itemName'), render: (_: any, row: any) => row.product?.name },
+        { key: 'quantity',   label: t('payments.amount'),      render: (v: number) => v.toLocaleString() },
+        { key: 'unit_price', label: t('inventory.sellPrice'),  render: (v: number) => `${Number(v).toLocaleString()} ر.س` },
+        { key: 'id',         label: t('accounting.balance'),   render: (_: any, row: any) => `${(row.quantity * row.unit_price).toLocaleString()} ر.س` },
+    ];
+
     return (
         <AppLayout>
-            <Head title={`أمر بيع ${order.number}`} />
+            <Head title={`${t('sales.orders')} ${order.number}`} />
             <div className="max-w-4xl space-y-4">
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <a href="/sales-orders" className="text-slate-400 hover:text-white"><ArrowRight size={18} /></a>
-                        <h1 className="text-xl font-bold text-white">{order.number}</h1>
-                        <span className={`px-2 py-0.5 rounded-full text-xs ${statusMap[order.status]?.color}`}>
-                            {statusMap[order.status]?.label}
-                        </span>
-                    </div>
-                    <div className="flex gap-2">
-                        {order.status === 'draft' && (
-                            <button onClick={() => router.post(`/sales-orders/${order.id}/confirm`)}
-                                className="flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-sm">
-                                <CheckCircle size={14} /> تأكيد
-                            </button>
-                        )}
-                        {order.status === 'confirmed' && (
-                            <button onClick={() => router.post(`/sales-orders/${order.id}/ship`)}
-                                className="flex items-center gap-1 bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg text-sm">
-                                <Truck size={14} /> شحن وإصدار فاتورة
-                            </button>
-                        )}
-                        {['draft', 'confirmed'].includes(order.status) && (
-                            <button onClick={() => { if (confirm('إلغاء الطلب؟')) router.post(`/sales-orders/${order.id}/cancel`); }}
-                                className="flex items-center gap-1 bg-red-600/10 hover:bg-red-600/20 text-red-400 px-3 py-1.5 rounded-lg text-sm">
-                                <XCircle size={14} /> إلغاء
-                            </button>
-                        )}
-                    </div>
-                </div>
+                <PageHeader
+                    breadcrumbs={[{ label: t('nav.sales') }, { label: t('nav.salesOrders'), href: '/sales-orders' }, { label: order.number }]}
+                    title={order.number}
+                    actions={
+                        <div className="flex gap-2">
+                            {order.status === 'draft' && (
+                                <PrimaryButton onClick={() => router.post(`/sales-orders/${order.id}/confirm`)}>
+                                    <CheckCircle size={14} /> تأكيد
+                                </PrimaryButton>
+                            )}
+                            {order.status === 'confirmed' && (
+                                <PrimaryButton onClick={() => router.post(`/sales-orders/${order.id}/ship`)}>
+                                    <Truck size={14} /> شحن وإصدار فاتورة
+                                </PrimaryButton>
+                            )}
+                            {['draft', 'confirmed'].includes(order.status) && (
+                                <DangerButton onClick={() => { if (confirm('إلغاء الطلب؟')) router.post(`/sales-orders/${order.id}/cancel`); }}>
+                                    <XCircle size={14} /> إلغاء
+                                </DangerButton>
+                            )}
+                        </div>
+                    }
+                />
                 <Flash />
+
                 <div className="grid grid-cols-3 gap-4">
                     {[
-                        { label: 'العميل', value: order.customer?.name },
-                        { label: 'المستودع', value: order.warehouse?.name },
-                        { label: 'التاريخ', value: order.date },
+                        { label: t('crm.customers'),   value: order.customer?.name },
+                        { label: t('nav.warehouses'),  value: order.warehouse?.name },
+                        { label: t('accounting.date'), value: order.date },
                     ].map(item => (
-                        <div key={item.label} className="bg-slate-900 border border-slate-800 rounded-xl p-4">
-                            <p className="text-slate-400 text-xs mb-1">{item.label}</p>
-                            <p className="text-white font-medium">{item.value}</p>
-                        </div>
+                        <Card key={item.label} bodyClassName="py-4">
+                            <p className="text-xs mb-1" style={{ color: 'var(--color-text-muted)' }}>{item.label}</p>
+                            <p className="font-medium" style={{ color: 'var(--color-text-strong)' }}>{item.value}</p>
+                        </Card>
                     ))}
                 </div>
+
                 {order.invoice && (
-                    <div className="bg-blue-500/5 border border-blue-500/20 rounded-xl p-4 flex items-center justify-between">
+                    <div className="px-4 py-3 rounded-xl border flex items-center justify-between"
+                        style={{ background: 'rgba(99,102,241,0.05)', borderColor: 'var(--color-primary)' }}>
                         <div>
-                            <p className="text-blue-400 text-sm font-medium">فاتورة: {order.invoice.number}</p>
-                            <p className="text-slate-400 text-xs mt-0.5">الإجمالي: {Number(order.invoice.total).toLocaleString()} ر.س</p>
+                            <p className="text-sm font-medium" style={{ color: 'var(--color-primary)' }}>فاتورة: {order.invoice.number}</p>
+                            <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-muted)' }}>
+                                {Number(order.invoice.total).toLocaleString()} ر.س
+                            </p>
                         </div>
-                        <span className={`px-2 py-0.5 rounded-full text-xs ${order.invoice.status === 'paid' ? 'bg-green-500/10 text-green-400' : 'bg-yellow-500/10 text-yellow-400'}`}>
+                        <Badge variant={order.invoice.status === 'paid' ? 'success' : 'warning'} dot>
                             {order.invoice.status === 'paid' ? 'مدفوعة' : 'معلقة'}
-                        </span>
+                        </Badge>
                     </div>
                 )}
-                <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
-                    <table className="w-full text-sm">
-                        <thead className="border-b border-slate-800">
-                            <tr className="text-slate-400">
-                                <th className="text-right px-4 py-3">المنتج</th>
-                                <th className="text-right px-4 py-3">الكمية</th>
-                                <th className="text-right px-4 py-3">سعر البيع</th>
-                                <th className="text-right px-4 py-3">الإجمالي</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-800">
-                            {order.items.map(item => (
-                                <tr key={item.id} className="hover:bg-slate-800/50">
-                                    <td className="px-4 py-3 text-white">{item.product?.name}</td>
-                                    <td className="px-4 py-3 text-slate-300">{item.quantity}</td>
-                                    <td className="px-4 py-3 text-slate-300">{Number(item.unit_price).toLocaleString()}</td>
-                                    <td className="px-4 py-3 text-white">{(item.quantity * item.unit_price).toLocaleString()}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                        <tfoot className="border-t border-slate-700">
-                            <tr>
-                                <td colSpan={3} className="px-4 py-3 text-slate-400 text-right">الإجمالي</td>
-                                <td className="px-4 py-3 text-white font-bold">{Number(order.total).toLocaleString()} ر.س</td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
+
+                <DataTableCard
+                    title={t('inventory.items')}
+                    columns={columns}
+                    data={order.items}
+                    footer={<span className="font-semibold" style={{ color: 'var(--color-text-strong)' }}>{t('accounting.balance')}: {Number(order.total).toLocaleString()} ر.س</span>}
+                />
             </div>
         </AppLayout>
     );

@@ -44,8 +44,10 @@ export const TextInput = forwardRef<
 
     return (
         <input {...props} type={type} ref={localRef}
-            className={cn('w-full px-3 py-2.5 text-sm rounded-lg border outline-none transition-all', className)}
+            className={cn('w-full py-2.5 text-sm rounded-lg border outline-none transition-all', className)}
             style={{
+                paddingInlineStart: '0.75rem',
+                paddingInlineEnd:   '0.75rem',
                 background:   'var(--color-surface-2)',
                 borderColor:  error ? 'var(--color-danger)' : 'var(--color-border)',
                 color:        'var(--color-text-strong)',

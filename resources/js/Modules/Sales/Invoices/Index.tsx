@@ -1,7 +1,9 @@
 import AppLayout from '@/Core/Layouts/AppLayout';
 import Flash from '@/Core/Components/Flash';
+import { PageHeader, DataTableCard, Badge, PrimaryButton, Select } from '@/Core/Components/UI';
 import { Head, Link, router } from '@inertiajs/react';
 import { Plus, Eye } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface Invoice {
     id: number; number: string; date: string; due_date: string;
@@ -10,90 +12,67 @@ interface Invoice {
     currency: { code: string; symbol: string } | null;
 }
 
-const statusMap: Record<string, { label: string; color: string }> = {
-    draft:     { label: 'مسودة',   color: 'bg-slate-700 text-slate-300' },
-    issued:    { label: 'مُصدرة',  color: 'bg-blue-500/10 text-blue-400' },
-    partial:   { label: 'جزئي',    color: 'bg-yellow-500/10 text-yellow-400' },
-    paid:      { label: 'مدفوعة',  color: 'bg-green-500/10 text-green-400' },
-    cancelled: { label: 'ملغية',   color: 'bg-red-500/10 text-red-400' },
+const statusVariant: Record<string, any> = {
+    draft: 'default', issued: 'primary', partial: 'warning', paid: 'success', cancelled: 'danger',
+};
+const statusLabels: Record<string, string> = {
+    draft: 'مسودة', issued: 'مُصدرة', partial: 'جزئي', paid: 'مدفوعة', cancelled: 'ملغية',
 };
 
 export default function SalesInvoicesIndex({ invoices, filters, customers }: {
-    invoices: { data: Invoice[] };
-    filters: any;
-    customers: { id: number; name: string }[];
+    invoices: { data: Invoice[] }; filters: any; customers: { id: number; name: string }[];
 }) {
+    const { t } = useTranslation();
+
+    const columns = [
+        { key: 'number',   label: '#', render: (v: string) => <span className="font-mono text-xs" style={{ color: 'var(--color-primary)' }}>{v}</span> },
+        { key: 'customer', label: t('crm.customers'), render: (_: any, row: Invoice) => row.customer?.name },
+        { key: 'date',     label: t('accounting.date') },
+        { key: 'due_date', label: 'الاستحقاق', render: (v: string) => v || '—' },
+        { key: 'total',    label: t('accounting.balance'),
+            render: (v: number, row: Invoice) => `${row.currency?.symbol ?? ''} ${Number(v).toLocaleString()}`
+        },
+        { key: 'paid',     label: 'المتبقي',
+            render: (v: number, row: Invoice) => {
+                const bal = row.total - v;
+                return <span style={{ color: bal > 0 ? 'var(--color-danger)' : 'var(--color-success)' }}>{row.currency?.symbol} {Number(bal).toLocaleString()}</span>;
+            }
+        },
+        { key: 'status',   label: t('common.status'),
+            render: (v: string) => <Badge variant={statusVariant[v]} dot>{statusLabels[v]}</Badge>
+        },
+        { key: 'id', label: '', render: (_: any, row: Invoice) => (
+            <Link href={`/sales-invoices/${row.id}`} style={{ color: 'var(--color-text-muted)' }}><Eye size={15} /></Link>
+        )},
+    ];
+
     return (
         <AppLayout>
-            <Head title="فواتير المبيعات" />
+            <Head title={t('sales.invoices')} />
             <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                    <h1 className="text-xl font-bold text-white">فواتير المبيعات</h1>
-                    <Link href="/sales-invoices/create"
-                        className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm transition-colors">
-                        <Plus size={16} /> فاتورة مبيعات جديدة
-                    </Link>
-                </div>
+                <PageHeader
+                    breadcrumbs={[{ label: t('nav.sales') }, { label: t('nav.salesInvoices') }]}
+                    title={t('sales.invoices')}
+                    actions={
+                        <Link href="/sales-invoices/create">
+                            <PrimaryButton><Plus size={16} /> فاتورة جديدة</PrimaryButton>
+                        </Link>
+                    }
+                />
                 <Flash />
-
                 <div className="flex gap-3">
-                    <select value={filters.status ?? ''} onChange={e => router.get('/sales-invoices', { ...filters, status: e.target.value })}
-                        className="bg-slate-900 border border-slate-700 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500">
-                        <option value="">كل الحالات</option>
-                        {Object.entries(statusMap).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
-                    </select>
-                    <select value={filters.customer_id ?? ''} onChange={e => router.get('/sales-invoices', { ...filters, customer_id: e.target.value })}
-                        className="bg-slate-900 border border-slate-700 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500">
-                        <option value="">كل العملاء</option>
+                    <Select value={filters.status ?? ''} className="w-44"
+                        onChange={e => router.get('/sales-invoices', { ...filters, status: e.target.value })}>
+                        <option value="">{t('common.all')}</option>
+                        {Object.entries(statusLabels).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                    </Select>
+                    <Select value={filters.customer_id ?? ''} className="w-48"
+                        onChange={e => router.get('/sales-invoices', { ...filters, customer_id: e.target.value })}>
+                        <option value="">{t('common.all')} {t('crm.customers')}</option>
                         {customers.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                    </select>
+                    </Select>
                 </div>
-
-                <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
-                    <table className="w-full text-sm">
-                        <thead className="border-b border-slate-800">
-                            <tr className="text-slate-400">
-                                <th className="text-right px-4 py-3">الرقم</th>
-                                <th className="text-right px-4 py-3">العميل</th>
-                                <th className="text-right px-4 py-3">التاريخ</th>
-                                <th className="text-right px-4 py-3">الاستحقاق</th>
-                                <th className="text-right px-4 py-3">الإجمالي</th>
-                                <th className="text-right px-4 py-3">المتبقي</th>
-                                <th className="text-right px-4 py-3">الحالة</th>
-                                <th className="px-4 py-3"></th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-800">
-                            {invoices.data.map(inv => (
-                                <tr key={inv.id} className="hover:bg-slate-800/50">
-                                    <td className="px-4 py-3 text-blue-400 font-mono text-xs">{inv.number}</td>
-                                    <td className="px-4 py-3 text-white">{inv.customer?.name}</td>
-                                    <td className="px-4 py-3 text-slate-300">{inv.date}</td>
-                                    <td className="px-4 py-3 text-slate-300">{inv.due_date || '-'}</td>
-                                    <td className="px-4 py-3 text-white">
-                                        {inv.currency?.symbol} {Number(inv.total).toLocaleString()}
-                                    </td>
-                                    <td className={`px-4 py-3 font-medium ${(inv.total - inv.paid) > 0 ? 'text-red-400' : 'text-green-400'}`}>
-                                        {inv.currency?.symbol} {Number(inv.total - inv.paid).toLocaleString()}
-                                    </td>
-                                    <td className="px-4 py-3">
-                                        <span className={`px-2 py-0.5 rounded-full text-xs ${statusMap[inv.status]?.color}`}>
-                                            {statusMap[inv.status]?.label}
-                                        </span>
-                                    </td>
-                                    <td className="px-4 py-3">
-                                        <Link href={`/sales-invoices/${inv.id}`} className="text-slate-400 hover:text-blue-400">
-                                            <Eye size={15} />
-                                        </Link>
-                                    </td>
-                                </tr>
-                            ))}
-                            {invoices.data.length === 0 && (
-                                <tr><td colSpan={8} className="px-4 py-8 text-center text-slate-500">لا توجد فواتير</td></tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
+                <DataTableCard title={t('sales.invoices')} columns={columns} data={invoices.data} emptyText={t('common.noData')} />
             </div>
         </AppLayout>
     );

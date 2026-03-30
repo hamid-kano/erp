@@ -1,19 +1,16 @@
 import AppLayout from '@/Core/Layouts/AppLayout';
-import { PageHeader, Card, PrimaryButton, SecondaryButton, InputLabel, InputError, TextInput, Checkbox } from '@/Core/Components/UI';
+import { PageHeader, Card, PrimaryButton, SecondaryButton, InputField, Checkbox } from '@/Core/Components/UI';
 import { Head, useForm, Link } from '@inertiajs/react';
 import { Save } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 interface WarehouseItem { id?: number; name: string; city: string; is_active: boolean; }
 
-const inputCls = 'w-full bg-slate-800 border border-slate-700 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500';
-const labelCls = 'block text-sm text-slate-300 mb-1';
-
 export default function WarehouseForm({ warehouse }: { warehouse?: WarehouseItem }) {
     const { t } = useTranslation();
     const { data, setData, post, put, processing, errors } = useForm({
-        name:      warehouse?.name ?? '',
-        city:      warehouse?.city ?? '',
+        name:      warehouse?.name      ?? '',
+        city:      warehouse?.city      ?? '',
         is_active: warehouse?.is_active ?? true,
     });
 
@@ -34,19 +31,22 @@ export default function WarehouseForm({ warehouse }: { warehouse?: WarehouseItem
                 />
                 <Card>
                     <form onSubmit={submit} className="space-y-4">
-                        <div>
-                            <label className={labelCls}>{t('warehouse.name')} *</label>
-                            <input value={data.name} onChange={e => setData('name', e.target.value)} className={inputCls} />
-                            {errors.name && <p className="text-red-400 text-xs mt-1">{errors.name}</p>}
-                        </div>
-                        <div>
-                            <label className={labelCls}>{t('warehouse.city')}</label>
-                            <input value={data.city} onChange={e => setData('city', e.target.value)} className={inputCls} />
-                        </div>
+                        <InputField
+                            label={`${t('warehouse.name')} *`}
+                            value={data.name}
+                            onChange={e => setData('name', e.target.value)}
+                            error={errors.name}
+                        />
+                        <InputField
+                            label={t('warehouse.city')}
+                            value={data.city}
+                            onChange={e => setData('city', e.target.value)}
+                        />
                         <div className="flex items-center gap-2">
-                            <input type="checkbox" id="is_active" checked={data.is_active}
-                                onChange={e => setData('is_active', e.target.checked)} className="rounded" />
-                            <label htmlFor="is_active" className="text-sm text-slate-300 cursor-pointer">{t('common.active')}</label>
+                            <Checkbox id="is_active" checked={data.is_active} onChange={e => setData('is_active', e.target.checked)} />
+                            <label htmlFor="is_active" className="text-sm font-medium cursor-pointer" style={{ color: 'var(--color-text-strong)' }}>
+                                {t('common.active')}
+                            </label>
                         </div>
                         <div className="flex gap-3 pt-2">
                             <PrimaryButton type="submit" loading={processing}>

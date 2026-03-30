@@ -1,22 +1,25 @@
 import AppLayout from '@/Core/Layouts/AppLayout';
-import { Head, useForm } from '@inertiajs/react';
-import { Save, ArrowRight, Plus, Trash2 } from 'lucide-react';
+import { PageHeader, Card, PrimaryButton, InputField, Select } from '@/Core/Components/UI';
+import { Head, useForm, Link } from '@inertiajs/react';
+import { Save, Plus, Trash2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
-interface Option { id: number; name: string; }
-interface Product extends Option { sku: string; sell_price: number; }
+interface Option   { id: number; name: string; }
+interface Product  { id: number; name: string; sku: string; sell_price: number; }
 
 export default function SalesForm({ customers, warehouses, products }: {
     customers: Option[]; warehouses: Option[]; products: Product[];
 }) {
+    const { t } = useTranslation();
     const { data, setData, post, processing } = useForm({
-        customer_id: '',
+        customer_id:  '',
         warehouse_id: '',
-        date: new Date().toISOString().split('T')[0],
-        notes: '',
-        items: [{ product_id: '', quantity: 1, unit_price: 0 }] as any[],
+        date:         new Date().toISOString().split('T')[0],
+        notes:        '',
+        items:        [{ product_id: '', quantity: 1, unit_price: 0 }] as any[],
     });
 
-    const addItem = () => setData('items', [...data.items, { product_id: '', quantity: 1, unit_price: 0 }]);
+    const addItem    = () => setData('items', [...data.items, { product_id: '', quantity: 1, unit_price: 0 }]);
     const removeItem = (i: number) => setData('items', data.items.filter((_: any, idx: number) => idx !== i));
     const updateItem = (i: number, key: string, val: any) => {
         const items = [...data.items];
@@ -28,80 +31,86 @@ export default function SalesForm({ customers, warehouses, products }: {
         setData('items', items);
     };
 
-    const total = data.items.reduce((s: number, i: any) => s + (i.quantity * i.unit_price), 0);
+    const total = data.items.reduce((s: number, i: any) => s + ((+i.quantity || 0) * (+i.unit_price || 0)), 0);
 
     return (
         <AppLayout>
-            <Head title="أمر بيع جديد" />
+            <Head title={t('sales.newOrder')} />
             <div className="max-w-4xl space-y-4">
-                <div className="flex items-center gap-3">
-                    <a href="/sales-orders" className="text-slate-400 hover:text-white"><ArrowRight size={18} /></a>
-                    <h1 className="text-xl font-bold text-white">أمر بيع جديد</h1>
-                </div>
+                <PageHeader
+                    breadcrumbs={[{ label: t('nav.sales') }, { label: t('nav.salesOrders'), href: '/sales-orders' }, { label: t('common.create') }]}
+                    title={t('sales.newOrder')}
+                />
                 <form onSubmit={e => { e.preventDefault(); post('/sales-orders'); }} className="space-y-4">
-                    <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 grid grid-cols-2 gap-4">
-                        {[
-                            { label: 'العميل *', key: 'customer_id', options: customers },
-                            { label: 'المستودع *', key: 'warehouse_id', options: warehouses },
-                        ].map(f => (
-                            <div key={f.key}>
-                                <label className="block text-sm text-slate-300 mb-1">{f.label}</label>
-                                <select value={(data as any)[f.key]} onChange={e => setData(f.key as any, e.target.value)}
-                                    className="w-full bg-slate-800 border border-slate-700 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500">
-                                    <option value="">اختر...</option>
-                                    {f.options.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}
-                                </select>
+                    <Card>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--color-text-strong)' }}>{t('crm.customers')} *</label>
+                                <Select value={data.customer_id} onChange={e => setData('customer_id', e.target.value)}>
+                                    <option value="">—</option>
+                                    {customers.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                                </Select>
                             </div>
-                        ))}
-                        <div>
-                            <label className="block text-sm text-slate-300 mb-1">التاريخ *</label>
-                            <input type="date" value={data.date} onChange={e => setData('date', e.target.value)}
-                                className="w-full bg-slate-800 border border-slate-700 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500" />
-                        </div>
-                    </div>
-                    <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-3">
-                        <div className="flex items-center justify-between mb-2">
-                            <h2 className="text-white font-medium">الأصناف</h2>
-                            <button type="button" onClick={addItem} className="flex items-center gap-1 text-blue-400 hover:text-blue-300 text-sm">
-                                <Plus size={14} /> إضافة صنف
-                            </button>
-                        </div>
-                        {data.items.map((item: any, i: number) => (
-                            <div key={i} className="grid grid-cols-12 gap-2 items-end">
-                                <div className="col-span-5">
-                                    <select value={item.product_id} onChange={e => updateItem(i, 'product_id', e.target.value)}
-                                        className="w-full bg-slate-800 border border-slate-700 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500">
-                                        <option value="">اختر منتج...</option>
-                                        {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-                                    </select>
-                                </div>
-                                <div className="col-span-3">
-                                    <input type="number" placeholder="الكمية" value={item.quantity} min="0.001" step="0.001"
-                                        onChange={e => updateItem(i, 'quantity', +e.target.value)}
-                                        className="w-full bg-slate-800 border border-slate-700 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500" />
-                                </div>
-                                <div className="col-span-3">
-                                    <input type="number" placeholder="سعر البيع" value={item.unit_price} min="0" step="0.01"
-                                        onChange={e => updateItem(i, 'unit_price', +e.target.value)}
-                                        className="w-full bg-slate-800 border border-slate-700 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500" />
-                                </div>
-                                <div className="col-span-1 flex justify-center">
-                                    {data.items.length > 1 && (
-                                        <button type="button" onClick={() => removeItem(i)} className="text-slate-500 hover:text-red-400">
-                                            <Trash2 size={15} />
-                                        </button>
-                                    )}
-                                </div>
+                            <div>
+                                <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--color-text-strong)' }}>{t('nav.warehouses')} *</label>
+                                <Select value={data.warehouse_id} onChange={e => setData('warehouse_id', e.target.value)}>
+                                    <option value="">—</option>
+                                    {warehouses.map(w => <option key={w.id} value={w.id}>{w.name}</option>)}
+                                </Select>
                             </div>
-                        ))}
-                        <div className="flex justify-end pt-3 border-t border-slate-800">
-                            <span className="text-white font-semibold">الإجمالي: {total.toLocaleString()} ر.س</span>
+                            <InputField label={`${t('accounting.date')} *`} type="date" value={data.date} onChange={e => setData('date', e.target.value)} />
+                            <InputField label={t('accounting.description')} value={data.notes} onChange={e => setData('notes', e.target.value)} />
                         </div>
-                    </div>
-                    <button type="submit" disabled={processing}
-                        className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-6 py-2 rounded-lg text-sm transition-colors">
-                        <Save size={16} /> {processing ? 'جارٍ الحفظ...' : 'إنشاء أمر البيع'}
-                    </button>
+                    </Card>
+
+                    <Card title={t('inventory.items')} action={
+                        <button type="button" onClick={addItem} className="flex items-center gap-1 text-sm" style={{ color: 'var(--color-primary)' }}>
+                            <Plus size={14} /> إضافة صنف
+                        </button>
+                    }>
+                        <div className="space-y-3">
+                            <div className="grid grid-cols-12 gap-2 text-xs px-1" style={{ color: 'var(--color-text-muted)' }}>
+                                <div className="col-span-5">{t('inventory.itemName')}</div>
+                                <div className="col-span-3">{t('payments.amount')}</div>
+                                <div className="col-span-3">{t('inventory.sellPrice')}</div>
+                                <div className="col-span-1"></div>
+                            </div>
+                            {data.items.map((item: any, i: number) => (
+                                <div key={i} className="grid grid-cols-12 gap-2 items-center">
+                                    <div className="col-span-5">
+                                        <Select value={item.product_id} onChange={e => updateItem(i, 'product_id', e.target.value)}>
+                                            <option value="">—</option>
+                                            {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                                        </Select>
+                                    </div>
+                                    <div className="col-span-3">
+                                        <InputField label="" type="number" value={item.quantity} min="0.001" step="0.001"
+                                            onChange={e => updateItem(i, 'quantity', +e.target.value)} />
+                                    </div>
+                                    <div className="col-span-3">
+                                        <InputField label="" type="number" value={item.unit_price} min="0" step="0.01"
+                                            onChange={e => updateItem(i, 'unit_price', +e.target.value)} />
+                                    </div>
+                                    <div className="col-span-1 flex justify-center">
+                                        {data.items.length > 1 && (
+                                            <button type="button" onClick={() => removeItem(i)} style={{ color: 'var(--color-text-muted)' }}>
+                                                <Trash2 size={15} />
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+                            <div className="flex justify-end pt-3 border-t" style={{ borderColor: 'var(--color-border)' }}>
+                                <span className="font-semibold" style={{ color: 'var(--color-text-strong)' }}>
+                                    {t('accounting.balance')}: {total.toLocaleString()} ر.س
+                                </span>
+                            </div>
+                        </div>
+                    </Card>
+
+                    <PrimaryButton type="submit" loading={processing}>
+                        <Save size={15} /> {t('common.save')}
+                    </PrimaryButton>
                 </form>
             </div>
         </AppLayout>

@@ -1,5 +1,5 @@
 import AppLayout from '@/Core/Layouts/AppLayout';
-import { PageHeader, Card, PrimaryButton, SecondaryButton, InputLabel, InputError, TextInput, Checkbox, Select } from '@/Core/Components/UI';
+import { PageHeader, Card, PrimaryButton, SecondaryButton, InputField, Select, Checkbox } from '@/Core/Components/UI';
 import { Head, useForm, Link } from '@inertiajs/react';
 import { Save } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -37,6 +37,9 @@ export default function ItemForm({ item, itemGroups, units }: {
 
     const isEdit = !!item?.id;
 
+    const selectCls = 'w-full py-2.5 text-sm rounded-lg border outline-none transition-all appearance-none cursor-pointer';
+    const selectStyle = { paddingInlineStart: '0.75rem', paddingInlineEnd: '2rem', background: 'var(--color-surface-2)', borderColor: 'var(--color-border)', color: 'var(--color-text-strong)', backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'left 10px center' };
+
     return (
         <AppLayout>
             <Head title={isEdit ? t('inventory.editItem') : t('inventory.newItem')} />
@@ -52,20 +55,22 @@ export default function ItemForm({ item, itemGroups, units }: {
                 <Card>
                     <form onSubmit={submit} className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <InputLabel value={`${t('inventory.itemName')} *`} />
-                                <TextInput value={data.name} onChange={e => setData('name', e.target.value)} error={!!errors.name} />
-                                <InputError message={errors.name} />
-                            </div>
-                            <div>
-                                <InputLabel value={t('inventory.sku')} />
-                                <TextInput value={data.sku} onChange={e => setData('sku', e.target.value)} />
-                            </div>
+                            <InputField
+                                label={`${t('inventory.itemName')} *`}
+                                value={data.name}
+                                onChange={e => setData('name', e.target.value)}
+                                error={errors.name}
+                            />
+                            <InputField
+                                label={t('inventory.sku')}
+                                value={data.sku}
+                                onChange={e => setData('sku', e.target.value)}
+                            />
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <InputLabel value={t('inventory.itemGroup')} />
+                                <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--color-text-strong)' }}>{t('inventory.itemGroup')}</label>
                                 <Select value={data.item_group_id} onChange={e => setData('item_group_id', e.target.value)}>
                                     <option value="">-- {t('common.all')} --</option>
                                     {itemGroups.map(g => (
@@ -74,7 +79,7 @@ export default function ItemForm({ item, itemGroups, units }: {
                                 </Select>
                             </div>
                             <div>
-                                <InputLabel value={t('inventory.itemType')} />
+                                <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--color-text-strong)' }}>{t('inventory.itemType')}</label>
                                 <Select value={data.item_type} onChange={e => setData('item_type', e.target.value)}>
                                     {(['finished_good','raw_material','service','asset'] as const).map(v => (
                                         <option key={v} value={v}>{t(`inventory.itemTypes.${v}`)}</option>
@@ -84,7 +89,7 @@ export default function ItemForm({ item, itemGroups, units }: {
                         </div>
 
                         <div>
-                            <InputLabel value={t('inventory.unit')} />
+                            <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--color-text-strong)' }}>{t('inventory.unit')}</label>
                             <Select value={data.unit_id} onChange={e => setData('unit_id', e.target.value)}>
                                 <option value="">-- {t('common.all')} --</option>
                                 {units.map(u => <option key={u.id} value={u.id}>{u.name} ({u.symbol})</option>)}
@@ -92,26 +97,29 @@ export default function ItemForm({ item, itemGroups, units }: {
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <InputLabel value={t('inventory.costPrice')} />
-                                <TextInput type="number" value={data.cost_price} min={0} step="0.01"
-                                    onChange={e => setData('cost_price', +e.target.value)} />
-                            </div>
-                            <div>
-                                <InputLabel value={t('inventory.sellPrice')} />
-                                <TextInput type="number" value={data.sell_price} min={0} step="0.01"
-                                    onChange={e => setData('sell_price', +e.target.value)} />
-                            </div>
+                            <InputField
+                                label={t('inventory.costPrice')}
+                                type="number" min={0} step="0.01"
+                                value={data.cost_price}
+                                onChange={e => setData('cost_price', +e.target.value)}
+                            />
+                            <InputField
+                                label={t('inventory.sellPrice')}
+                                type="number" min={0} step="0.01"
+                                value={data.sell_price}
+                                onChange={e => setData('sell_price', +e.target.value)}
+                            />
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
+                            <InputField
+                                label={t('inventory.reorderPoint')}
+                                type="number" min={0} step="0.001"
+                                value={data.reorder_point}
+                                onChange={e => setData('reorder_point', +e.target.value)}
+                            />
                             <div>
-                                <InputLabel value={t('inventory.reorderPoint')} />
-                                <TextInput type="number" value={data.reorder_point} min={0} step="0.001"
-                                    onChange={e => setData('reorder_point', +e.target.value)} />
-                            </div>
-                            <div>
-                                <InputLabel value={t('inventory.costMethod')} />
+                                <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--color-text-strong)' }}>{t('inventory.costMethod')}</label>
                                 <Select value={data.cost_method} onChange={e => setData('cost_method', e.target.value)}>
                                     <option value="fifo">{t('inventory.fifo')}</option>
                                     <option value="weighted">{t('inventory.weighted')}</option>
@@ -120,9 +128,10 @@ export default function ItemForm({ item, itemGroups, units }: {
                         </div>
 
                         <div className="flex items-center gap-2">
-                            <Checkbox id="is_active" checked={data.is_active}
-                                onChange={e => setData('is_active', e.target.checked)} />
-                            <InputLabel htmlFor="is_active" value={t('common.active')} className="mb-0 cursor-pointer" />
+                            <Checkbox id="is_active" checked={data.is_active} onChange={e => setData('is_active', e.target.checked)} />
+                            <label htmlFor="is_active" className="text-sm font-medium cursor-pointer" style={{ color: 'var(--color-text-strong)' }}>
+                                {t('common.active')}
+                            </label>
                         </div>
 
                         <div className="flex gap-3 pt-2">

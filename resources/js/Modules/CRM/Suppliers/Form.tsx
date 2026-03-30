@@ -1,5 +1,5 @@
 import AppLayout from '@/Core/Layouts/AppLayout';
-import { PageHeader, Card, PrimaryButton, SecondaryButton, InputLabel, InputError, TextInput, Checkbox } from '@/Core/Components/UI';
+import { PageHeader, Card, PrimaryButton, SecondaryButton, InputField, Checkbox } from '@/Core/Components/UI';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { Save } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -37,35 +37,43 @@ export default function SupplierForm({ supplier }: { supplier?: Supplier }) {
                 />
                 <Card>
                     <form onSubmit={submit} className="space-y-4">
-                        <div>
-                            <InputLabel value={`${t('crm.name')} *`} />
-                            <TextInput value={data.name} onChange={e => setData('name', e.target.value)} error={!!errors.name} />
-                            <InputError message={errors.name} />
-                        </div>
+                        <InputField
+                            label={`${t('crm.name')} *`}
+                            value={data.name}
+                            onChange={e => setData('name', e.target.value)}
+                            error={errors.name}
+                        />
                         <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <InputLabel value={t('crm.phone')} />
-                                <TextInput value={data.phone} onChange={e => setData('phone', e.target.value)} />
-                            </div>
-                            <div>
-                                <InputLabel value={t('crm.email')} />
-                                <TextInput type="email" value={data.email} onChange={e => setData('email', e.target.value)} error={!!errors.email} />
-                                <InputError message={errors.email} />
-                            </div>
+                            <InputField
+                                label={t('crm.phone')}
+                                value={data.phone}
+                                onChange={e => setData('phone', e.target.value)}
+                            />
+                            <InputField
+                                label={t('crm.email')}
+                                type="email"
+                                value={data.email}
+                                onChange={e => setData('email', e.target.value)}
+                                error={errors.email}
+                            />
                         </div>
-                        <div>
-                            <InputLabel value={t('crm.address')} />
-                            <TextInput value={data.address} onChange={e => setData('address', e.target.value)} />
-                        </div>
-                        <div>
-                            <InputLabel value="شروط الدفع (أيام)" />
-                            <TextInput type="number" value={data.payment_terms}
-                                onChange={e => setData('payment_terms', +e.target.value)} />
-                        </div>
+                        <InputField
+                            label={t('crm.address')}
+                            value={data.address}
+                            onChange={e => setData('address', e.target.value)}
+                        />
+                        <InputField
+                            label="شروط الدفع (أيام)"
+                            type="number"
+                            value={data.payment_terms}
+                            min={1}
+                            onChange={e => setData('payment_terms', +e.target.value)}
+                        />
                         <div className="flex items-center gap-2">
-                            <Checkbox id="is_active" checked={data.is_active}
-                                onChange={e => setData('is_active', e.target.checked)} />
-                            <InputLabel htmlFor="is_active" value={t('common.active')} className="mb-0 cursor-pointer" />
+                            <Checkbox id="is_active" checked={data.is_active} onChange={e => setData('is_active', e.target.checked)} />
+                            <label htmlFor="is_active" className="text-sm font-medium cursor-pointer" style={{ color: 'var(--color-text-strong)' }}>
+                                {t('common.active')}
+                            </label>
                         </div>
                         <div className="flex gap-3 pt-2">
                             <PrimaryButton type="submit" loading={processing}>

@@ -1,5 +1,5 @@
 import AppLayout from '@/Core/Layouts/AppLayout';
-import { PageHeader, Card, PrimaryButton, SecondaryButton, InputLabel, InputError, TextInput, Checkbox } from '@/Core/Components/UI';
+import { PageHeader, Card, PrimaryButton, SecondaryButton, InputField, Checkbox } from '@/Core/Components/UI';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { Save } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -10,18 +10,15 @@ interface Customer {
     credit_limit: number; is_active: boolean;
 }
 
-const inputCls = 'w-full bg-slate-800 border border-slate-700 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500';
-const labelCls = 'block text-sm text-slate-300 mb-1';
-
 export default function CustomerForm({ customer }: { customer?: Customer }) {
     const { t } = useTranslation();
     const { data, setData, post, put, processing, errors } = useForm({
-        name:         customer?.name ?? '',
-        phone:        customer?.phone ?? '',
-        email:        customer?.email ?? '',
-        address:      customer?.address ?? '',
+        name:         customer?.name         ?? '',
+        phone:        customer?.phone        ?? '',
+        email:        customer?.email        ?? '',
+        address:      customer?.address      ?? '',
         credit_limit: customer?.credit_limit ?? 0,
-        is_active:    customer?.is_active ?? true,
+        is_active:    customer?.is_active    ?? true,
     });
 
     const submit = (e: React.FormEvent) => {
@@ -41,35 +38,46 @@ export default function CustomerForm({ customer }: { customer?: Customer }) {
                 />
                 <Card>
                     <form onSubmit={submit} className="space-y-4">
-                        <div>
-                            <InputLabel value={`${t('crm.name')} *`} />
-                            <TextInput value={data.name} onChange={e => setData('name', e.target.value)} error={!!errors.name} />
-                            <InputError message={errors.name} />
-                        </div>
+                        <InputField
+                            label={`${t('crm.name')} *`}
+                            value={data.name}
+                            onChange={e => setData('name', e.target.value)}
+                            error={errors.name}
+                        />
                         <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <InputLabel value={t('crm.phone')} />
-                                <TextInput value={data.phone} onChange={e => setData('phone', e.target.value)} />
-                            </div>
-                            <div>
-                                <InputLabel value={t('crm.email')} />
-                                <TextInput type="email" value={data.email} onChange={e => setData('email', e.target.value)} />
-                            </div>
+                            <InputField
+                                label={t('crm.phone')}
+                                value={data.phone}
+                                onChange={e => setData('phone', e.target.value)}
+                            />
+                            <InputField
+                                label={t('crm.email')}
+                                type="email"
+                                value={data.email}
+                                onChange={e => setData('email', e.target.value)}
+                                error={errors.email}
+                            />
                         </div>
                         <div>
-                            <InputLabel value={t('crm.address')} />
+                            <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--color-text-strong)' }}>
+                                {t('crm.address')}
+                            </label>
                             <textarea value={data.address} onChange={e => setData('address', e.target.value)} rows={2}
-                                className="w-full px-3 py-2.5 text-sm rounded-lg border outline-none resize-none"
-                                style={{ background: 'var(--color-surface-2)', borderColor: 'var(--color-border)', color: 'var(--color-text-strong)' }} />
+                                className="w-full py-2.5 text-sm rounded-lg border outline-none resize-none transition-all"
+                                style={{ paddingInlineStart: '0.75rem', paddingInlineEnd: '0.75rem', background: 'var(--color-surface-2)', borderColor: 'var(--color-border)', color: 'var(--color-text-strong)' }} />
                         </div>
-                        <div>
-                            <InputLabel value={t('crm.balance')} />
-                            <TextInput type="number" value={data.credit_limit} min={0} step="0.01"
-                                onChange={e => setData('credit_limit', +e.target.value)} />
-                        </div>
+                        <InputField
+                            label={t('crm.balance')}
+                            type="number"
+                            value={data.credit_limit}
+                            min={0} step="0.01"
+                            onChange={e => setData('credit_limit', +e.target.value)}
+                        />
                         <div className="flex items-center gap-2">
                             <Checkbox id="is_active" checked={data.is_active} onChange={e => setData('is_active', e.target.checked)} />
-                            <InputLabel htmlFor="is_active" value={t('common.active')} className="mb-0 cursor-pointer" />
+                            <label htmlFor="is_active" className="text-sm font-medium cursor-pointer" style={{ color: 'var(--color-text-strong)' }}>
+                                {t('common.active')}
+                            </label>
                         </div>
                         <div className="flex gap-3 pt-2">
                             <PrimaryButton type="submit" loading={processing}>
