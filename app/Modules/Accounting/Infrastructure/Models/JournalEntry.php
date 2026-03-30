@@ -37,6 +37,11 @@ class JournalEntry extends BaseModel
         return $this->belongsTo(JournalEntry::class, 'reversed_entry_id');
     }
 
+    public function source(): \Illuminate\Database\Eloquent\Relations\MorphTo
+    {
+        return $this->morphTo();
+    }
+
     public function isPosted(): bool
     {
         return $this->status === 'posted';

@@ -46,6 +46,8 @@ class HandleInvoiceIssued
             'date'        => $invoice->date,
             'description' => "فاتورة مبيعات {$invoice->number}",
             'reference'   => $invoice->number,
+            'source_type' => \App\Modules\Sales\Infrastructure\Models\SalesInvoice::class,
+            'source_id'   => $invoice->id,
             'lines'       => [
                 [
                     'account_id' => $receivableAccount->id,
@@ -68,6 +70,8 @@ class HandleInvoiceIssued
                 'date'        => $invoice->date,
                 'description' => "تكلفة بضاعة مباعة - {$invoice->number}",
                 'reference'   => $invoice->number,
+                'source_type' => \App\Modules\Sales\Infrastructure\Models\SalesInvoice::class,
+                'source_id'   => $invoice->id,
                 'lines'       => [
                     [
                         'account_id' => $cogsAccount->id,

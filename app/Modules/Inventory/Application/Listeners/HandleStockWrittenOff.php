@@ -45,6 +45,8 @@ class HandleStockWrittenOff
             'date'        => now()->toDateString(),
             'description' => "{$label} - {$adjustment->product->name}",
             'reference'   => "ADJ-{$adjustment->id}",
+            'source_type' => \App\Modules\Inventory\Infrastructure\Models\StockAdjustment::class,
+            'source_id'   => $adjustment->id,
             'lines'       => [
                 [
                     'account_id'  => $lossAccount->id,

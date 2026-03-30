@@ -7,6 +7,7 @@ use App\Modules\CRM\Infrastructure\Models\Customer;
 use App\Modules\Currency\Infrastructure\Models\Currency;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class SalesInvoice extends BaseModel
@@ -29,6 +30,10 @@ class SalesInvoice extends BaseModel
     public function order(): BelongsTo    { return $this->belongsTo(SalesOrder::class, 'order_id'); }
     public function currency(): BelongsTo { return $this->belongsTo(Currency::class); }
     public function items(): HasMany      { return $this->hasMany(SalesInvoiceItem::class); }
+    public function journalEntry(): MorphOne
+    {
+        return $this->morphOne(\App\Modules\Accounting\Infrastructure\Models\JournalEntry::class, 'source');
+    }
 
     public function getBalanceAttribute(): float
     {

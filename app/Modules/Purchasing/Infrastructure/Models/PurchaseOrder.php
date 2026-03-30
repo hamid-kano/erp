@@ -8,6 +8,7 @@ use App\Modules\Currency\Infrastructure\Models\Currency;
 use App\Modules\Warehouse\Infrastructure\Models\Warehouse;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 class PurchaseOrder extends BaseModel
 {
@@ -25,6 +26,10 @@ class PurchaseOrder extends BaseModel
     public function currency(): BelongsTo  { return $this->belongsTo(Currency::class); }
     public function items(): HasMany       { return $this->hasMany(PurchaseOrderItem::class, 'order_id'); }
     public function invoice()              { return $this->hasOne(PurchaseInvoice::class, 'order_id'); }
+    public function journalEntry(): MorphOne
+    {
+        return $this->morphOne(\App\Modules\Accounting\Infrastructure\Models\JournalEntry::class, 'source');
+    }
 
     public function canConfirm(): bool { return $this->status === 'draft'; }
     public function canReceive(): bool { return $this->status === 'confirmed'; }

@@ -5,6 +5,7 @@ namespace App\Modules\Purchasing\Infrastructure\Models;
 use App\Core\BaseModel;
 use App\Modules\CRM\Infrastructure\Models\Supplier;
 use App\Modules\Currency\Infrastructure\Models\Currency;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 class PurchaseInvoice extends BaseModel
 {
@@ -23,6 +24,10 @@ class PurchaseInvoice extends BaseModel
     public function order()     { return $this->belongsTo(PurchaseOrder::class, 'order_id'); }
     public function currency()  { return $this->belongsTo(Currency::class); }
     public function items()     { return $this->hasMany(PurchaseInvoiceItem::class, 'invoice_id'); }
+    public function journalEntry(): MorphOne
+    {
+        return $this->morphOne(\App\Modules\Accounting\Infrastructure\Models\JournalEntry::class, 'source');
+    }
 
     public function getBalanceAttribute(): float
     {
