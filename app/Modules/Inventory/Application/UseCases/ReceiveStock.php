@@ -11,7 +11,7 @@ class ReceiveStock
     public function __construct(private InventoryService $inventoryService) {}
 
     public function execute(
-        int $productId,
+        int $itemId,
         int $warehouseId,
         float $quantity,
         float $unitCost,
@@ -19,7 +19,7 @@ class ReceiveStock
         ?int $refId = null,
     ): StockMovement {
         return $this->inventoryService->recordMovement(new StockMovementDTO(
-            product_id:     $productId,
+            item_id:        $itemId,
             warehouse_id:   $warehouseId,
             quantity:       abs($quantity),
             type:           'in',

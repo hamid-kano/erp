@@ -4,7 +4,7 @@ namespace App\Modules\Warehouse\Web\Controllers;
 
 use App\Core\AuditLog\AuditLog;
 use App\Http\Controllers\Controller;
-use App\Modules\Inventory\Infrastructure\Models\Product;
+use App\Modules\Inventory\Infrastructure\Models\Item;
 use App\Modules\Warehouse\Application\UseCases\TransferStock;
 use App\Modules\Warehouse\Infrastructure\Models\Warehouse;
 use Illuminate\Http\Request;
@@ -42,17 +42,17 @@ class WarehouseController extends Controller
 
     public function show(Warehouse $warehouse): Response
     {
-        $stock = Product::active()
+        $stock = Item::active()
             ->withSum(['stockMovements' => fn($q) => $q->where('warehouse_id', $warehouse->id)], 'quantity')
             ->having('stock_movements_sum_quantity', '>', 0)
             ->with('unit')
             ->get()
-            ->map(fn($p) => [
-                'id'       => $p->id,
-                'name'     => $p->name,
-                'sku'      => $p->sku,
-                'quantity' => (float)$p->stock_movements_sum_quantity,
-                'unit'     => $p->unit?->symbol,
+            ->map(fn($i) => [
+                'id'       => $i->id,
+                'name'     => $i->name,
+                'sku'      => $i->sku,
+                'quantity' => (float)$i->stock_movements_sum_quantity,
+                'unit'     => $i->unit?->symbol,
             ]);
 
         return Inertia::render('Warehouse/Show', [
@@ -98,14 +98,14 @@ class WarehouseController extends Controller
     public function transfer(Request $request, TransferStock $useCase)
     {
         $request->validate([
-            'product_id'        => ['required', 'exists:products,id'],
+            'product_id'        => ['required', 'exists:items,id'],
             'from_warehouse_id' => ['required', 'exists:warehouses,id'],
             'to_warehouse_id'   => ['required', 'exists:warehouses,id', 'different:from_warehouse_id'],
             'quantity'          => ['required', 'numeric', 'min:0.001'],
         ]);
 
         $useCase->execute(
-            productId:       $request->product_id,
+            itemId:          $request->product_id,
             fromWarehouseId: $request->from_warehouse_id,
             toWarehouseId:   $request->to_warehouse_id,
             quantity:        $request->quantity,

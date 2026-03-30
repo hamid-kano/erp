@@ -17,26 +17,20 @@ class WriteOffStock
         private TenantManager    $tenantManager,
     ) {}
 
-    /**
-     * إنشاء طلب تسوية (pending) — ينتظر موافقة المدير
-     */
     public function request(array $data): StockAdjustment
     {
         return StockAdjustment::create([
             'tenant_id'       => $this->tenantManager->getId(),
-            'product_id'      => $data['product_id'],
+            'item_id'         => $data['item_id'],
             'warehouse_id'    => $data['warehouse_id'],
             'quantity'        => $data['quantity'],
-            'adjustment_type' => $data['adjustment_type'], // damage | theft | expired | count_correction
+            'adjustment_type' => $data['adjustment_type'],
             'notes'           => $data['notes'] ?? null,
             'status'          => 'pending',
             'requested_by'    => auth()->id(),
         ]);
     }
 
-    /**
-     * موافقة المدير — تُنشئ حركة المخزون والقيد المحاسبي
-     */
     public function approve(StockAdjustment $adjustment): StockAdjustment
     {
         if (! $adjustment->isPending()) {
@@ -45,7 +39,7 @@ class WriteOffStock
 
         return DB::transaction(function () use ($adjustment) {
             $available = $this->inventoryService->getAvailableStock(
-                $adjustment->product_id,
+                $adjustment->item_id,
                 $adjustment->warehouse_id
             );
 
@@ -53,27 +47,24 @@ class WriteOffStock
                 throw DomainException::make("الكمية المتاحة ({$available}) أقل من كمية التسوية ({$adjustment->quantity})");
             }
 
-            // حساب التكلفة عبر FIFO
             $totalCost = $this->inventoryService->consumeFifo(
-                $adjustment->product_id,
+                $adjustment->item_id,
                 $adjustment->warehouse_id,
                 $adjustment->quantity
             );
 
-            // تسجيل حركة المخزون
             $movement = $this->inventoryService->recordMovement(new StockMovementDTO(
-                product_id:   $adjustment->product_id,
-                warehouse_id: $adjustment->warehouse_id,
-                quantity:     -abs($adjustment->quantity),
-                type:         'out',
-                reason:       $adjustment->adjustment_type,
-                unit_cost:    $adjustment->quantity > 0 ? $totalCost / $adjustment->quantity : 0,
-                notes:        $adjustment->notes,
+                item_id:        $adjustment->item_id,
+                warehouse_id:   $adjustment->warehouse_id,
+                quantity:       -abs($adjustment->quantity),
+                type:           'out',
+                reason:         $adjustment->adjustment_type,
+                unit_cost:      $adjustment->quantity > 0 ? $totalCost / $adjustment->quantity : 0,
+                notes:          $adjustment->notes,
                 reference_type: StockAdjustment::class,
                 reference_id:   $adjustment->id,
             ));
 
-            // تحديث حالة الطلب
             $adjustment->update([
                 'status'      => 'approved',
                 'approved_by' => auth()->id(),
@@ -87,9 +78,6 @@ class WriteOffStock
         });
     }
 
-    /**
-     * رفض الطلب
-     */
     public function reject(StockAdjustment $adjustment, ?string $reason = null): StockAdjustment
     {
         if (! $adjustment->isPending()) {

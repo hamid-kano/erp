@@ -6,9 +6,9 @@ use App\Core\BaseModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Product extends BaseModel
+class Item extends BaseModel
 {
-    protected $table = 'products';
+    protected $table = 'items';
 
     protected $casts = [
         'cost_price'    => 'decimal:2',
@@ -19,9 +19,9 @@ class Product extends BaseModel
 
     // ── Relationships ─────────────────────────────────────
 
-    public function category(): BelongsTo
+    public function itemGroup(): BelongsTo
     {
-        return $this->belongsTo(Category::class);
+        return $this->belongsTo(ItemGroup::class);
     }
 
     public function unit(): BelongsTo
@@ -46,13 +46,8 @@ class Product extends BaseModel
 
     // ── Stock Helpers ─────────────────────────────────────
 
-    /**
-     * استخدم withSum('stockMovements', 'quantity') في الـ queries
-     * بدل هذا الـ accessor لتجنب N+1
-     */
     public function getStockAttribute(): float
     {
-        // لو تم تحميله عبر withSum نستخدمه مباشرة
         if (isset($this->attributes['stock_movements_sum_quantity'])) {
             return (float) $this->attributes['stock_movements_sum_quantity'];
         }

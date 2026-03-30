@@ -8,11 +8,11 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('categories', function (Blueprint $table) {
+        Schema::create('item_groups', function (Blueprint $table) {
             $table->id();
             $table->string('tenant_id')->index();
-            $table->unsignedBigInteger('parent_id')->nullable();
             $table->string('name');
+            $table->nestedSet();
             $table->timestamps();
             $table->softDeletes();
         });
@@ -25,11 +25,12 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::create('products', function (Blueprint $table) {
+        Schema::create('items', function (Blueprint $table) {
             $table->id();
             $table->string('tenant_id')->index();
-            $table->unsignedBigInteger('category_id')->nullable();
+            $table->unsignedBigInteger('item_group_id')->nullable();
             $table->unsignedBigInteger('unit_id')->nullable();
+            $table->enum('item_type', ['raw_material', 'finished_good', 'service', 'asset'])->default('finished_good');
             $table->string('name');
             $table->string('sku')->nullable();
             $table->decimal('cost_price', 15, 2)->default(0);
@@ -42,12 +43,13 @@ return new class extends Migration
 
             $table->index(['tenant_id', 'sku']);
             $table->index(['tenant_id', 'name']);
+            $table->index(['tenant_id', 'item_type']);
         });
 
         Schema::create('stock_movements', function (Blueprint $table) {
             $table->id();
             $table->string('tenant_id')->index();
-            $table->unsignedBigInteger('product_id');
+            $table->unsignedBigInteger('item_id');
             $table->unsignedBigInteger('warehouse_id');
             $table->decimal('quantity', 15, 3);
             $table->enum('type', ['in', 'out', 'transfer', 'adjustment']);
@@ -59,7 +61,7 @@ return new class extends Migration
             $table->unsignedBigInteger('created_by')->nullable();
             $table->timestamps();
 
-            $table->index(['tenant_id', 'product_id', 'warehouse_id']);
+            $table->index(['tenant_id', 'item_id', 'warehouse_id']);
             $table->index(['tenant_id', 'type', 'reason']);
             $table->index(['reference_type', 'reference_id']);
         });
@@ -67,7 +69,7 @@ return new class extends Migration
         Schema::create('stock_adjustments', function (Blueprint $table) {
             $table->id();
             $table->string('tenant_id')->index();
-            $table->unsignedBigInteger('product_id');
+            $table->unsignedBigInteger('item_id');
             $table->unsignedBigInteger('warehouse_id');
             $table->decimal('quantity', 15, 3);           // الكمية المتأثرة
             $table->enum('adjustment_type', ['damage', 'theft', 'expired', 'count_correction', 'other']);
@@ -86,7 +88,7 @@ return new class extends Migration
         Schema::create('stock_reservations', function (Blueprint $table) {
             $table->id();
             $table->string('tenant_id')->index();
-            $table->unsignedBigInteger('product_id');
+            $table->unsignedBigInteger('item_id');
             $table->unsignedBigInteger('warehouse_id');
             $table->decimal('quantity', 15, 3);
             $table->string('reference_type');
@@ -94,13 +96,13 @@ return new class extends Migration
             $table->enum('status', ['reserved', 'released', 'fulfilled'])->default('reserved');
             $table->timestamps();
 
-            $table->index(['tenant_id', 'product_id', 'status']);
+            $table->index(['tenant_id', 'item_id', 'status']);
         });
 
         Schema::create('cost_layers', function (Blueprint $table) {
             $table->id();
             $table->string('tenant_id')->index();
-            $table->unsignedBigInteger('product_id');
+            $table->unsignedBigInteger('item_id');
             $table->unsignedBigInteger('warehouse_id');
             $table->decimal('remaining_quantity', 15, 3);
             $table->decimal('unit_cost', 15, 2);
@@ -108,19 +110,19 @@ return new class extends Migration
             $table->unsignedBigInteger('source_id')->nullable();
             $table->timestamps();
 
-            $table->index(['tenant_id', 'product_id', 'warehouse_id']);
+            $table->index(['tenant_id', 'item_id', 'warehouse_id']);
         });
 
         Schema::create('stock_snapshots', function (Blueprint $table) {
             $table->id();
             $table->string('tenant_id')->index();
-            $table->unsignedBigInteger('product_id');
+            $table->unsignedBigInteger('item_id');
             $table->unsignedBigInteger('warehouse_id');
             $table->decimal('quantity', 15, 3)->default(0);
             $table->date('snapshot_date');
             $table->timestamps();
 
-            $table->unique(['tenant_id', 'product_id', 'warehouse_id', 'snapshot_date'], 'stock_snapshots_unique');
+            $table->unique(['tenant_id', 'item_id', 'warehouse_id', 'snapshot_date'], 'stock_snapshots_unique');
         });
     }
 
@@ -131,8 +133,8 @@ return new class extends Migration
         Schema::dropIfExists('stock_reservations');
         Schema::dropIfExists('stock_adjustments');
         Schema::dropIfExists('stock_movements');
-        Schema::dropIfExists('products');
+        Schema::dropIfExists('items');
         Schema::dropIfExists('units');
-        Schema::dropIfExists('categories');
+        Schema::dropIfExists('item_groups');
     }
 };

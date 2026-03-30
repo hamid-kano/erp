@@ -7,7 +7,7 @@ use App\Modules\Inventory\Domain\DTOs\StockMovementDTO;
 use App\Modules\Inventory\Domain\Events\StockDepleted;
 use App\Modules\Inventory\Domain\Events\StockMovementRecorded;
 use App\Modules\Inventory\Infrastructure\Models\CostLayer;
-use App\Modules\Inventory\Infrastructure\Models\Product;
+use App\Modules\Inventory\Infrastructure\Models\Item;
 use App\Modules\Inventory\Infrastructure\Models\StockMovement;
 use App\Modules\Inventory\Infrastructure\Models\StockReservation;
 use App\Core\Shared\Exceptions\DomainException;
@@ -22,7 +22,7 @@ class InventoryService
         return DB::transaction(function () use ($dto) {
             $movement = StockMovement::create([
                 'tenant_id'      => $this->tenantManager->getId(),
-                'product_id'     => $dto->product_id,
+                'item_id'        => $dto->item_id,
                 'warehouse_id'   => $dto->warehouse_id,
                 'quantity'       => $dto->quantity,
                 'type'           => $dto->type,
@@ -38,9 +38,9 @@ class InventoryService
                 $this->addCostLayer($dto);
             }
 
-            $stock = $this->getStock($dto->product_id, $dto->warehouse_id);
+            $stock = $this->getStock($dto->item_id, $dto->warehouse_id);
             if ($stock <= 0) {
-                StockDepleted::dispatch(Product::find($dto->product_id), $dto->warehouse_id);
+                StockDepleted::dispatch(Item::find($dto->item_id), $dto->warehouse_id);
             }
 
             StockMovementRecorded::dispatch($movement);
@@ -49,16 +49,16 @@ class InventoryService
         });
     }
 
-    public function getStock(int $productId, int $warehouseId): float
+    public function getStock(int $itemId, int $warehouseId): float
     {
-        return (float) StockMovement::where('product_id', $productId)
+        return (float) StockMovement::where('item_id', $itemId)
             ->where('warehouse_id', $warehouseId)
             ->sum('quantity');
     }
 
-    public function reserveStock(int $productId, int $warehouseId, float $quantity, string $refType, int $refId): void
+    public function reserveStock(int $itemId, int $warehouseId, float $quantity, string $refType, int $refId): void
     {
-        $available = $this->getAvailableStock($productId, $warehouseId);
+        $available = $this->getAvailableStock($itemId, $warehouseId);
 
         if ($available < $quantity) {
             throw DomainException::make("المخزون غير كافٍ. المتاح: {$available}");
@@ -66,7 +66,7 @@ class InventoryService
 
         StockReservation::create([
             'tenant_id'      => $this->tenantManager->getId(),
-            'product_id'     => $productId,
+            'item_id'        => $itemId,
             'warehouse_id'   => $warehouseId,
             'quantity'       => $quantity,
             'reference_type' => $refType,
@@ -83,11 +83,11 @@ class InventoryService
             ->update(['status' => 'released']);
     }
 
-    public function getAvailableStock(int $productId, int $warehouseId): float
+    public function getAvailableStock(int $itemId, int $warehouseId): float
     {
-        $total = $this->getStock($productId, $warehouseId);
+        $total = $this->getStock($itemId, $warehouseId);
 
-        $reserved = (float) StockReservation::where('product_id', $productId)
+        $reserved = (float) StockReservation::where('item_id', $itemId)
             ->where('warehouse_id', $warehouseId)
             ->where('status', 'reserved')
             ->sum('quantity');
@@ -95,9 +95,9 @@ class InventoryService
         return $total - $reserved;
     }
 
-    public function consumeFifo(int $productId, int $warehouseId, float $quantity): float
+    public function consumeFifo(int $itemId, int $warehouseId, float $quantity): float
     {
-        $layers = CostLayer::where('product_id', $productId)
+        $layers = CostLayer::where('item_id', $itemId)
             ->where('warehouse_id', $warehouseId)
             ->where('remaining_quantity', '>', 0)
             ->orderBy('id')
@@ -148,7 +148,7 @@ class InventoryService
     {
         CostLayer::create([
             'tenant_id'          => $this->tenantManager->getId(),
-            'product_id'         => $dto->product_id,
+            'item_id'            => $dto->item_id,
             'warehouse_id'       => $dto->warehouse_id,
             'remaining_quantity' => $dto->quantity,
             'unit_cost'          => $dto->unit_cost,

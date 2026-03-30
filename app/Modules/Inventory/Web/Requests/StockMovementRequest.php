@@ -11,7 +11,7 @@ class StockMovementRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'product_id'   => ['required', 'integer', 'exists:products,id'],
+            'item_id'      => ['required', 'integer', 'exists:items,id'],
             'warehouse_id' => ['required', 'integer', 'exists:warehouses,id'],
             'quantity'     => ['required', 'numeric', 'min:0.001'],
             'unit_cost'    => ['nullable', 'numeric', 'min:0'],

@@ -17,7 +17,7 @@ class TransferStock
     ) {}
 
     public function execute(
-        int   $productId,
+        int   $itemId,
         int   $fromWarehouseId,
         int   $toWarehouseId,
         float $quantity,
@@ -31,18 +31,17 @@ class TransferStock
             throw new DomainException('الكمية يجب أن تكون أكبر من صفر');
         }
 
-        $available = $this->inventoryService->getAvailableStock($productId, $fromWarehouseId);
+        $available = $this->inventoryService->getAvailableStock($itemId, $fromWarehouseId);
 
         if ($available < $quantity) {
             throw new DomainException("المخزون غير كافٍ. المتاح: {$available}");
         }
 
-        DB::transaction(function () use ($productId, $fromWarehouseId, $toWarehouseId, $quantity, $unitCost) {
+        DB::transaction(function () use ($itemId, $fromWarehouseId, $toWarehouseId, $quantity, $unitCost) {
             $tenantId = $this->tenantManager->getId();
 
-            // خروج من المستودع المصدر
             $this->inventoryService->recordMovement(new StockMovementDTO(
-                product_id:     $productId,
+                item_id:        $itemId,
                 warehouse_id:   $fromWarehouseId,
                 quantity:       -$quantity,
                 type:           'transfer',
@@ -51,9 +50,8 @@ class TransferStock
                 reference_id:   null,
             ));
 
-            // دخول للمستودع الهدف
             $this->inventoryService->recordMovement(new StockMovementDTO(
-                product_id:     $productId,
+                item_id:        $itemId,
                 warehouse_id:   $toWarehouseId,
                 quantity:       $quantity,
                 type:           'transfer',
@@ -62,7 +60,7 @@ class TransferStock
                 reference_id:   null,
             ));
 
-            StockTransferred::dispatch($productId, $fromWarehouseId, $toWarehouseId, $quantity, $tenantId);
+            StockTransferred::dispatch($itemId, $fromWarehouseId, $toWarehouseId, $quantity, $tenantId);
         });
     }
 }

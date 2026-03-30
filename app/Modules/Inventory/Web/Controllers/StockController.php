@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Modules\Inventory\Application\UseCases\AdjustStock;
 use App\Modules\Inventory\Application\UseCases\ReceiveStock;
 use App\Modules\Inventory\Domain\Services\InventoryService;
-use App\Modules\Inventory\Infrastructure\Models\Product;
+use App\Modules\Inventory\Infrastructure\Models\Item;
 use App\Modules\Inventory\Web\Requests\StockMovementRequest;
 use App\Modules\Warehouse\Infrastructure\Models\Warehouse;
 use Inertia\Inertia;
@@ -16,7 +16,7 @@ class StockController extends Controller
 {
     public function index(): Response
     {
-        $stock = Product::with(['category', 'unit'])
+        $stock = Item::with(['itemGroup', 'unit'])
             ->where('is_active', true)
             ->orderBy('name')
             ->paginate(20)
@@ -30,7 +30,7 @@ class StockController extends Controller
     public function receive(StockMovementRequest $request, ReceiveStock $useCase)
     {
         $useCase->execute(
-            productId:   $request->product_id,
+            itemId:      $request->item_id,
             warehouseId: $request->warehouse_id,
             quantity:    $request->quantity,
             unitCost:    $request->unit_cost ?? 0,
@@ -42,7 +42,7 @@ class StockController extends Controller
     public function adjust(StockMovementRequest $request, AdjustStock $useCase)
     {
         $useCase->execute(
-            productId:   $request->product_id,
+            itemId:      $request->item_id,
             warehouseId: $request->warehouse_id,
             newQuantity: $request->quantity,
             unitCost:    $request->unit_cost ?? 0,
@@ -55,11 +55,11 @@ class StockController extends Controller
     {
         $warehouses = Warehouse::all(['id', 'name']);
 
-        $lowStock = Product::active()
+        $lowStock = Item::active()
             ->withStock()
             ->with('unit')
             ->get()
-            ->filter(fn ($p) => $p->isLowStock())
+            ->filter(fn($i) => $i->isLowStock())
             ->values();
 
         return Inertia::render('Inventory/Stock/Levels', [

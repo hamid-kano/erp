@@ -7,7 +7,7 @@ use App\Core\Shared\DTOs\BaseDTO;
 class StockMovementDTO extends BaseDTO
 {
     public function __construct(
-        public readonly int $product_id,
+        public readonly int $item_id,
         public readonly int $warehouse_id,
         public readonly float $quantity,
         public readonly string $type,           // in | out | transfer | adjustment

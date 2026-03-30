@@ -11,16 +11,16 @@ class DeductStock
     public function __construct(private InventoryService $inventoryService) {}
 
     public function execute(
-        int $productId,
+        int $itemId,
         int $warehouseId,
         float $quantity,
         ?string $refType = null,
         ?int $refId = null,
     ): StockMovement {
-        $cogs = $this->inventoryService->consumeFifo($productId, $warehouseId, $quantity);
+        $cogs = $this->inventoryService->consumeFifo($itemId, $warehouseId, $quantity);
 
         return $this->inventoryService->recordMovement(new StockMovementDTO(
-            product_id:     $productId,
+            item_id:        $itemId,
             warehouse_id:   $warehouseId,
             quantity:       -abs($quantity),
             type:           'out',

@@ -15,7 +15,7 @@ class StockAdjustment extends BaseModel
         'approved_at' => 'datetime',
     ];
 
-    public function product(): BelongsTo   { return $this->belongsTo(Product::class); }
+    public function item(): BelongsTo    { return $this->belongsTo(Item::class); }
     public function warehouse(): BelongsTo { return $this->belongsTo(\App\Modules\Warehouse\Infrastructure\Models\Warehouse::class); }
     public function requestedBy(): BelongsTo { return $this->belongsTo(User::class, 'requested_by'); }
     public function approvedBy(): BelongsTo  { return $this->belongsTo(User::class, 'approved_by'); }
