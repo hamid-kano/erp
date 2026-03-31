@@ -25,4 +25,9 @@ class ReportPolicy
     {
         return $user->hasPermissionTo('accounting.reports.general_ledger');
     }
+
+    public function viewAccountStatement(User $user): bool
+    {
+        return $user->hasPermissionTo('accounting.reports.account_statement');
+    }
 }

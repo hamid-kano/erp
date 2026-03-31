@@ -17,10 +17,12 @@ use App\Modules\Accounting\Infrastructure\Models\JournalEntry;
 use App\Modules\Accounting\Web\Policies\AccountPolicy;
 use App\Modules\Accounting\Web\Policies\FiscalPeriodPolicy;
 use App\Modules\Accounting\Web\Policies\JournalEntryPolicy;
-use App\Modules\Accounting\Application\Reports\GeneralLedgerReport;
+use App\Modules\Accounting\Application\Reports\AccountStatementReport;
 use App\Modules\Accounting\Application\Reports\BalanceSheetReport;
+use App\Modules\Accounting\Application\Reports\GeneralLedgerReport;
 use App\Modules\Accounting\Application\Reports\IncomeStatementReport;
 use App\Modules\Accounting\Application\Reports\TrialBalanceReport;
+use App\Modules\Accounting\Web\Policies\ReportPolicy;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
@@ -47,6 +49,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(IncomeStatementReport::class,  ReportPolicy::class);
         Gate::policy(BalanceSheetReport::class,     ReportPolicy::class);
         Gate::policy(GeneralLedgerReport::class,    ReportPolicy::class);
+        Gate::policy(AccountStatementReport::class,  ReportPolicy::class);
     }
 
     private function registerEvents(): void
