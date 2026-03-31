@@ -4,22 +4,17 @@ namespace App\Modules\Accounting\Application\Reports;
 
 use App\Modules\Accounting\Infrastructure\Models\Account;
 use App\Modules\Accounting\Infrastructure\Models\JournalLine;
-use Illuminate\Support\Facades\DB;
 
 class BalanceSheetReport
 {
     public function generate(string $asOf): array
     {
         // جلب كل الحركات حتى تاريخ معين (رصيد تراكمي)
-        $balances = JournalLine::select(
-                'journal_lines.account_id',
-                DB::raw('SUM(journal_lines.debit_base) as debit'),
-                DB::raw('SUM(journal_lines.credit_base) as credit')
+        $balances = JournalLine::whereHas('entry', fn($q) =>
+                $q->where('status', 'posted')->where('date', '<=', $asOf)
             )
-            ->join('journal_entries', 'journal_entries.id', '=', 'journal_lines.entry_id')
-            ->where('journal_entries.status', 'posted')
-            ->where('journal_entries.date', '<=', $asOf)
-            ->groupBy('journal_lines.account_id')
+            ->selectRaw('account_id, SUM(debit_base) as debit, SUM(credit_base) as credit')
+            ->groupBy('account_id')
             ->get()
             ->keyBy('account_id');
 
@@ -83,26 +78,20 @@ class BalanceSheetReport
     // صافي الأرباح المتراكمة = إيرادات - مصاريف حتى التاريخ
     private function getRetainedEarnings(string $asOf): float
     {
-        $balances = JournalLine::select(
-                'journal_lines.account_id',
-                DB::raw('SUM(journal_lines.debit_base) as debit'),
-                DB::raw('SUM(journal_lines.credit_base) as credit')
+        $lines = JournalLine::whereHas('entry', fn($q) =>
+                $q->where('status', 'posted')->where('date', '<=', $asOf)
             )
-            ->join('journal_entries', 'journal_entries.id', '=', 'journal_lines.entry_id')
-            ->join('accounts', 'accounts.id', '=', 'journal_lines.account_id')
-            ->where('journal_entries.status', 'posted')
-            ->where('journal_entries.date', '<=', $asOf)
-            ->whereIn('accounts.type', ['revenue', 'expense'])
-            ->groupBy('journal_lines.account_id', 'accounts.type', 'accounts.normal_balance')
+            ->whereHas('account', fn($q) => $q->whereIn('type', ['revenue', 'expense']))
+            ->selectRaw('account_id, SUM(debit_base) as debit, SUM(credit_base) as credit')
+            ->groupBy('account_id')
             ->get();
 
-        $net = 0.0;
-        foreach ($balances as $row) {
-            $account = Account::find($row->account_id);
-            if (!$account) continue;
-            $net += $account->getSignedBalance((float)$row->debit, (float)$row->credit);
-        }
+        // تحميل الحسابات دفعة واحدة — يحل مشكلة N+1
+        $accounts = Account::whereIn('id', $lines->pluck('account_id'))->get()->keyBy('id');
 
-        return $net;
+        return $lines->reduce(function (float $net, $row) use ($accounts) {
+            $account = $accounts->get($row->account_id);
+            return $account ? $net + $account->getSignedBalance((float)$row->debit, (float)$row->credit) : $net;
+        }, 0.0);
     }
 }

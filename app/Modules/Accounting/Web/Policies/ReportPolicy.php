@@ -10,4 +10,14 @@ class ReportPolicy
     {
         return $user->hasPermissionTo('accounting.reports.trial_balance');
     }
+
+    public function viewIncomeStatement(User $user): bool
+    {
+        return $user->hasPermissionTo('accounting.reports.income_statement');
+    }
+
+    public function viewBalanceSheet(User $user): bool
+    {
+        return $user->hasPermissionTo('accounting.reports.balance_sheet');
+    }
 }

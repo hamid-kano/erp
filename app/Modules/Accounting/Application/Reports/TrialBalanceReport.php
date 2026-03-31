@@ -4,35 +4,26 @@ namespace App\Modules\Accounting\Application\Reports;
 
 use App\Modules\Accounting\Infrastructure\Models\Account;
 use App\Modules\Accounting\Infrastructure\Models\JournalLine;
-use Illuminate\Support\Facades\DB;
 
 class TrialBalanceReport
 {
     public function generate(string $from, string $to): array
     {
         // ── 1. حركات ما قبل الفترة (لحساب رصيد أول المدة) ──────────
-        $openingMovements = JournalLine::select(
-                'journal_lines.account_id',
-                DB::raw('SUM(journal_lines.debit_base) as debit'),
-                DB::raw('SUM(journal_lines.credit_base) as credit')
+        $openingMovements = JournalLine::whereHas('entry', fn($q) =>
+                $q->where('status', 'posted')->where('date', '<', $from)
             )
-            ->join('journal_entries', 'journal_entries.id', '=', 'journal_lines.entry_id')
-            ->where('journal_entries.status', 'posted')
-            ->where('journal_entries.date', '<', $from)
-            ->groupBy('journal_lines.account_id')
+            ->selectRaw('account_id, SUM(debit_base) as debit, SUM(credit_base) as credit')
+            ->groupBy('account_id')
             ->get()
             ->keyBy('account_id');
 
         // ── 2. حركات الفترة ──────────────────────────────────────────
-        $periodMovements = JournalLine::select(
-                'journal_lines.account_id',
-                DB::raw('SUM(journal_lines.debit_base) as debit'),
-                DB::raw('SUM(journal_lines.credit_base) as credit')
+        $periodMovements = JournalLine::whereHas('entry', fn($q) =>
+                $q->where('status', 'posted')->whereBetween('date', [$from, $to])
             )
-            ->join('journal_entries', 'journal_entries.id', '=', 'journal_lines.entry_id')
-            ->where('journal_entries.status', 'posted')
-            ->whereBetween('journal_entries.date', [$from, $to])
-            ->groupBy('journal_lines.account_id')
+            ->selectRaw('account_id, SUM(debit_base) as debit, SUM(credit_base) as credit')
+            ->groupBy('account_id')
             ->get()
             ->keyBy('account_id');
 

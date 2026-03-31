@@ -6,28 +6,33 @@ import { useTranslation } from 'react-i18next';
 
 interface Account { id: number; code: string; name: string; }
 
+interface JournalLine {
+    account_id: number | '';
+    debit:      number;
+    credit:     number;
+}
+
+const emptyLine = (): JournalLine => ({ account_id: '', debit: 0, credit: 0 });
+
 export default function JournalEntryForm({ accounts }: { accounts: Account[] }) {
     const { t } = useTranslation();
     const { data, setData, post, processing, errors } = useForm({
         date:        new Date().toISOString().split('T')[0],
         description: '',
         reference:   '',
-        lines: [
-            { account_id: '', debit: 0, credit: 0 },
-            { account_id: '', debit: 0, credit: 0 },
-        ] as any[],
+        lines:       [emptyLine(), emptyLine()] as JournalLine[],
     });
 
-    const addLine    = () => setData('lines', [...data.lines, { account_id: '', debit: 0, credit: 0 }]);
-    const removeLine = (i: number) => setData('lines', data.lines.filter((_: any, idx: number) => idx !== i));
-    const updateLine = (i: number, key: string, val: any) => {
+    const addLine    = () => setData('lines', [...data.lines, emptyLine()]);
+    const removeLine = (i: number) => setData('lines', data.lines.filter((_, idx) => idx !== i));
+    const updateLine = <K extends keyof JournalLine>(i: number, key: K, val: JournalLine[K]) => {
         const lines = [...data.lines];
         lines[i] = { ...lines[i], [key]: val };
         setData('lines', lines);
     };
 
-    const totalDebit  = data.lines.reduce((s: number, l: any) => s + (+l.debit  || 0), 0);
-    const totalCredit = data.lines.reduce((s: number, l: any) => s + (+l.credit || 0), 0);
+    const totalDebit  = data.lines.reduce((s, l) => s + (+l.debit  || 0), 0);
+    const totalCredit = data.lines.reduce((s, l) => s + (+l.credit || 0), 0);
     const isBalanced  = Math.abs(totalDebit - totalCredit) < 0.01;
 
     return (
@@ -63,21 +68,21 @@ export default function JournalEntryForm({ accounts }: { accounts: Account[] }) 
                                 <div className="col-span-3">{t('accounting.credit')}</div>
                                 <div className="col-span-1"></div>
                             </div>
-                            {data.lines.map((line: any, i: number) => (
+                            {data.lines.map((line, i) => (
                                 <div key={i} className="grid grid-cols-12 gap-2 items-center">
                                     <div className="col-span-5">
-                                        <Select value={line.account_id} onChange={e => updateLine(i, 'account_id', e.target.value)}>
+                                        <Select value={line.account_id} onChange={e => updateLine(i, 'account_id', e.target.value === '' ? '' : +e.target.value)}>
                                             <option value="">اختر حساب...</option>
                                             {accounts.map(a => <option key={a.id} value={a.id}>{a.code} - {a.name}</option>)}
                                         </Select>
                                     </div>
                                     <div className="col-span-3">
                                         <InputField label="" type="number" value={line.debit} min="0" step="0.01"
-                                            onChange={e => updateLine(i, 'debit', e.target.value)} />
+                                            onChange={e => updateLine(i, 'debit', +e.target.value)} />
                                     </div>
                                     <div className="col-span-3">
                                         <InputField label="" type="number" value={line.credit} min="0" step="0.01"
-                                            onChange={e => updateLine(i, 'credit', e.target.value)} />
+                                            onChange={e => updateLine(i, 'credit', +e.target.value)} />
                                     </div>
                                     <div className="col-span-1 flex justify-center">
                                         {data.lines.length > 2 && (
@@ -89,8 +94,8 @@ export default function JournalEntryForm({ accounts }: { accounts: Account[] }) 
                                     </div>
                                 </div>
                             ))}
-                            {(errors as any).lines && (
-                                <p className="text-xs" style={{ color: 'var(--color-danger)' }}>{(errors as any).lines}</p>
+                            {errors.lines && (
+                                <p className="text-xs" style={{ color: 'var(--color-danger)' }}>{errors.lines}</p>
                             )}
                             <div className="flex justify-end gap-8 pt-3 border-t text-sm" style={{ borderColor: 'var(--color-border)' }}>
                                 <span style={{ color: 'var(--color-text-muted)' }}>

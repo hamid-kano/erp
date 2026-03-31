@@ -12,7 +12,7 @@ class ReportController extends Controller
 {
     public function trialBalance(TrialBalanceReport $report)
     {
-        abort_unless(auth()->user()->hasPermissionTo('accounting.reports.trial_balance'), 403);
+        $this->authorize('viewTrialBalance', \App\Modules\Accounting\Application\Reports\TrialBalanceReport::class);
 
         $from = request('from', now()->startOfMonth()->toDateString());
         $to   = request('to',   now()->toDateString());
@@ -22,7 +22,7 @@ class ReportController extends Controller
 
     public function incomeStatement(IncomeStatementReport $report)
     {
-        abort_unless(auth()->user()->hasPermissionTo('accounting.reports.income_statement'), 403);
+        $this->authorize('viewIncomeStatement', \App\Modules\Accounting\Application\Reports\IncomeStatementReport::class);
 
         $from = request('from', now()->startOfYear()->toDateString());
         $to   = request('to',   now()->toDateString());
@@ -32,7 +32,7 @@ class ReportController extends Controller
 
     public function balanceSheet(BalanceSheetReport $report)
     {
-        abort_unless(auth()->user()->hasPermissionTo('accounting.reports.balance_sheet'), 403);
+        $this->authorize('viewBalanceSheet', \App\Modules\Accounting\Application\Reports\BalanceSheetReport::class);
 
         $asOf = request('as_of', now()->toDateString());
 

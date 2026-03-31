@@ -47,6 +47,18 @@ class FiscalPeriod extends BaseModel
             ->first();
     }
 
+    /**
+     * التحقق من عدم تداخل الفترة مع فترات موجودة
+     */
+    public static function hasOverlap(string $tenantId, string $startDate, string $endDate, ?int $excludeId = null): bool
+    {
+        return static::where('tenant_id', $tenantId)
+            ->where('start_date', '<=', $endDate)
+            ->where('end_date', '>=', $startDate)
+            ->when($excludeId, fn($q) => $q->where('id', '!=', $excludeId))
+            ->exists();
+    }
+
     public function scopeOpen($query)
     {
         return $query->where('status', 'open');

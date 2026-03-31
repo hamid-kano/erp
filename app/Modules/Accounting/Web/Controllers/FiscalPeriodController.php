@@ -22,15 +22,10 @@ class FiscalPeriodController extends Controller
     {
         $this->authorize('create', FiscalPeriod::class);
 
-        $data      = $request->validated();
-        $tenantId  = auth()->user()->tenant_id;
+        $data     = $request->validated();
+        $tenantId = auth()->user()->tenant_id;
 
-        $overlap = FiscalPeriod::where('tenant_id', $tenantId)
-            ->where('start_date', '<=', $data['end_date'])
-            ->where('end_date', '>=', $data['start_date'])
-            ->exists();
-
-        if ($overlap) {
+        if (FiscalPeriod::hasOverlap($tenantId, $data['start_date'], $data['end_date'])) {
             return back()->withErrors(['start_date' => 'تتداخل مع فترة مالية موجودة']);
         }
 
