@@ -1,6 +1,6 @@
 import AppLayout from '@/Core/Layouts/AppLayout';
 import Flash from '@/Core/Components/Flash';
-import { PageHeader, Badge, DataTableCard, Modal, PrimaryButton, SecondaryButton, InputLabel, InputError, TextInput, Select } from '@/Core/Components/UI';
+import { PageHeader, Badge, DataTableCard, Modal, PrimaryButton, SecondaryButton, InputField, Select } from '@/Core/Components/UI';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { ArrowLeftRight, Pencil } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -27,29 +27,25 @@ function TransferModal({ warehouseId, stock, warehouses, onClose }: {
         <Modal show title={t('warehouse.transfer')} onClose={onClose}>
             <form onSubmit={submit} className="space-y-4">
                 <div>
-                    <InputLabel value={`${t('inventory.items')} *`} />
+                    <label className="block text-sm font-medium mb-1.5">{t('inventory.items')} *</label>
                     <Select value={data.product_id} onChange={e => setData('product_id', e.target.value)} error={!!errors.product_id}>
                         <option value="">—</option>
                         {stock.map(s => (
                             <option key={s.id} value={s.id}>{s.name} — {s.quantity} {s.unit}</option>
                         ))}
                     </Select>
-                    <InputError message={errors.product_id} />
+                    {errors.product_id && <p className="mt-1 text-xs" style={{ color: 'var(--color-danger)' }}>{errors.product_id}</p>}
                 </div>
                 <div>
-                    <InputLabel value={`${t('warehouse.to')} *`} />
+                    <label className="block text-sm font-medium mb-1.5">{t('warehouse.to')} *</label>
                     <Select value={data.to_warehouse_id} onChange={e => setData('to_warehouse_id', e.target.value)} error={!!errors.to_warehouse_id}>
                         <option value="">—</option>
                         {warehouses.map(w => <option key={w.id} value={w.id}>{w.name}</option>)}
                     </Select>
-                    <InputError message={errors.to_warehouse_id} />
+                    {errors.to_warehouse_id && <p className="mt-1 text-xs" style={{ color: 'var(--color-danger)' }}>{errors.to_warehouse_id}</p>}
                 </div>
-                <div>
-                    <InputLabel value={`${t('payments.amount')} *`} />
-                    <TextInput type="number" value={data.quantity} min="0.001" step="0.001"
-                        onChange={e => setData('quantity', e.target.value)} error={!!errors.quantity} />
-                    <InputError message={errors.quantity} />
-                </div>
+                <InputField label={`${t('payments.amount')} *`} type="number" value={data.quantity} min="0.001" step="0.001"
+                    onChange={e => setData('quantity', e.target.value)} error={errors.quantity} />
                 <div className="flex gap-2 pt-2">
                     <PrimaryButton type="submit" loading={processing} className="flex-1 justify-center">
                         {t('warehouse.transfer')}
