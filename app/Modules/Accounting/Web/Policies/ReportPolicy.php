@@ -20,4 +20,9 @@ class ReportPolicy
     {
         return $user->hasPermissionTo('accounting.reports.balance_sheet');
     }
+
+    public function viewGeneralLedger(User $user): bool
+    {
+        return $user->hasPermissionTo('accounting.reports.general_ledger');
+    }
 }

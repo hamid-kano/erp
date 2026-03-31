@@ -4,8 +4,10 @@ namespace App\Modules\Accounting\Web\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modules\Accounting\Application\Reports\BalanceSheetReport;
+use App\Modules\Accounting\Application\Reports\GeneralLedgerReport;
 use App\Modules\Accounting\Application\Reports\IncomeStatementReport;
 use App\Modules\Accounting\Application\Reports\TrialBalanceReport;
+use App\Modules\Accounting\Infrastructure\Models\Account;
 use Inertia\Inertia;
 
 class ReportController extends Controller
@@ -32,10 +34,25 @@ class ReportController extends Controller
 
     public function balanceSheet(BalanceSheetReport $report)
     {
-        $this->authorize('viewBalanceSheet', \App\Modules\Accounting\Application\Reports\BalanceSheetReport::class);
+        $this->authorize('viewBalanceSheet', BalanceSheetReport::class);
 
         $asOf = request('as_of', now()->toDateString());
 
         return Inertia::render('Accounting/Reports/BalanceSheet', $report->generate($asOf));
+    }
+
+    public function generalLedger(GeneralLedgerReport $report)
+    {
+        $this->authorize('viewGeneralLedger', GeneralLedgerReport::class);
+
+        $accountId = request()->integer('account_id');
+        $from      = request('from', now()->startOfMonth()->toDateString());
+        $to        = request('to',   now()->toDateString());
+
+        return Inertia::render('Accounting/Reports/GeneralLedger', [
+            'accounts'  => Account::postable()->orderBy('_lft')->get(['id', 'code', 'name']),
+            'report'    => $accountId ? $report->generate($accountId, $from, $to) : null,
+            'filters'   => compact('accountId', 'from', 'to'),
+        ]);
     }
 }
