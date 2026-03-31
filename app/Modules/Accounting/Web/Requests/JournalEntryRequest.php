@@ -3,6 +3,7 @@
 namespace App\Modules\Accounting\Web\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use App\Core\Tenancy\TenantManager;
 use Illuminate\Validation\Rule;
 
 class JournalEntryRequest extends FormRequest
@@ -23,7 +24,7 @@ class JournalEntryRequest extends FormRequest
             'lines.*.account_id' => [
                 'required',
                 Rule::exists('accounts', 'id')
-                    ->where('tenant_id', auth()->user()->tenant_id)
+                    ->where('tenant_id', app(TenantManager::class)->getId())
                     ->where('is_active', true)
                     ->where('is_postable', true),
             ],

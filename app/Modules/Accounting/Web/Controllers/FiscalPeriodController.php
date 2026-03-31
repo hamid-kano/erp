@@ -3,12 +3,14 @@
 namespace App\Modules\Accounting\Web\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Core\Tenancy\TenantManager;
 use App\Modules\Accounting\Infrastructure\Models\FiscalPeriod;
 use App\Modules\Accounting\Web\Requests\FiscalPeriodRequest;
 use Inertia\Inertia;
 
 class FiscalPeriodController extends Controller
 {
+    public function __construct(private TenantManager $tenantManager) {}
     public function index()
     {
         $this->authorize('viewAny', FiscalPeriod::class);
@@ -23,7 +25,7 @@ class FiscalPeriodController extends Controller
         $this->authorize('create', FiscalPeriod::class);
 
         $data     = $request->validated();
-        $tenantId = auth()->user()->tenant_id;
+        $tenantId = $this->tenantManager->getId();
 
         if (FiscalPeriod::hasOverlap($tenantId, $data['start_date'], $data['end_date'])) {
             return back()->withErrors(['start_date' => 'تتداخل مع فترة مالية موجودة']);

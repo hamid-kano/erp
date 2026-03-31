@@ -3,6 +3,7 @@
 namespace App\Modules\Accounting\Web\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use App\Core\Tenancy\TenantManager;
 
 class AccountRequest extends FormRequest
 {
@@ -13,7 +14,7 @@ class AccountRequest extends FormRequest
 
     public function rules(): array
     {
-        $tenantId  = auth()->user()->tenant_id;
+        $tenantId  = app(TenantManager::class)->getId();
         $accountId = $this->route('account')?->id;
 
         return [

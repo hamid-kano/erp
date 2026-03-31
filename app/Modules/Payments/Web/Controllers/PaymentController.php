@@ -3,6 +3,7 @@
 namespace App\Modules\Payments\Web\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Core\Tenancy\TenantManager;
 use App\Modules\Payments\Application\UseCases\ProcessPayment;
 use App\Modules\Payments\Infrastructure\Models\Payment;
 use App\Modules\Sales\Infrastructure\Models\SalesInvoice;
@@ -12,7 +13,10 @@ use Inertia\Inertia;
 
 class PaymentController extends Controller
 {
-    public function __construct(private ProcessPayment $processPayment) {}
+    public function __construct(
+        private ProcessPayment  $processPayment,
+        private TenantManager   $tenantManager,
+    ) {}
 
     public function index()
     {
@@ -58,7 +62,7 @@ class PaymentController extends Controller
     public function pendingInvoices(Request $request)
     {
         $type      = $request->query('type', 'sales');
-        $tenantId  = auth()->user()->tenant_id;
+        $tenantId  = $this->tenantManager->getId();
 
         $invoices = $type === 'sales'
             ? SalesInvoice::where('tenant_id', $tenantId)
